@@ -1,12 +1,9 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3260609.svg)](https://doi.org/10.5281/zenodo.3260609)
-[![Create a Slack Account with us](https://img.shields.io/badge/Create_Slack_Account-The_Carpentries-071159.svg)](https://swc-slack-invite.herokuapp.com/) 
-[![Slack Status](https://img.shields.io/badge/Slack_Channel-dc--genomics-E01563.svg)](https://swcarpentry.slack.com/messages/C9N1K7DCY) 
-
 # Wrangling Genomics
 
-Lesson for quality control and wrangling genomics data. This repository is maintained by [Josh Herr](https://github.com/jrherr), [Ming Tang](https://github.com/crazyhottommy), and [Fotis Psomopoulos](https://github.com/fpsom).
+Lesson for quality control and wrangling genomics data. This repository is maintained by [John Reeves](j.reeves@garvan.org.au) and has been forked
+from the original Data Carpentry workshop by [Josh Herr](https://github.com/jrherr), [Ming Tang](https://github.com/crazyhottommy), 
+and [Fotis Psomopoulos](https://github.com/fpsom). This fork has been modified for use with the Garvan HPC (Wolfpack).
 
-Amazon public AMI for this tutorial is "dataCgen-qc". 
 
 ## Background
 
