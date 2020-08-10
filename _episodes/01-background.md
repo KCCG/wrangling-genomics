@@ -68,6 +68,9 @@ This metadata describes information on the *Ara-3* clones and the columns repres
 > 2. How many rows and how many columns are in this data?
 > 3. How many citrate+ mutants have been recorded in **Ara-3**?
 > 4. How many hypermutable mutants have been recorded in **Ara-3**?
+> 
+> Try to use command line tools such as `grep`, `sort`, `uniq` and `wc` to answer these questions.
+> But you will still probably need to look at the data using tools such as `head` and `less`.
 >
 > > ## Solution
 >> 
