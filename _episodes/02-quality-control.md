@@ -45,7 +45,8 @@ We are studying a population of *Escherichia coli* (designated Ara-3), which wer
 
 The data are paired-end, so we will download two files for each sample. We will use the [European Nucleotide Archive](https://www.ebi.ac.uk/ena) to get our data. The ENA "provides a comprehensive record of the world's nucleotide sequencing information, covering raw sequencing data, sequence assembly information and functional annotation." The ENA also provides sequencing data in the fastq format, an important format for sequencing reads that we will be learning about today. 
 
-To download the data, run the commands below. 
+The commands below show how you would download the data from ENA. **You don't have to do this -- the files have already been downloaded for you.**
+But take advantage of some of the time saved by **not** having to download the files, to peruse this code and understand what you would normally have to do.
 
 Here we are using the `-p` option for `mkdir`. This option allows `mkdir` to create the new directory, even if one of the parent directories doesn't already exist. It also supresses errors if the directory already exists, without overwriting that directory. 
 
@@ -62,20 +63,6 @@ curl -O ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR258/006/SRR2584866/SRR2584866_1.fa
 curl -O ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR258/006/SRR2584866/SRR2584866_2.fastq.gz 
 ~~~
 {: .bash}
-
-> ## Faster option
-> 
-> If your workshop is short on time or the venue's internet connection is weak or unstable, learners can 
-> avoid needing to download the data and instead use the data files provided in the `.backup/` directory.
-> 
-> ~~~
-> $ cp ~/.backup/untrimmed_fastq/*fastq.gz .
-> ~~~
-> {: .bash}
-> 
-> This command creates a copy of each of the files in the `.backup/untrimmed_fastq/` directory that end in `fastq.gz` and
-> places the copies in the current working directory (signified by `.`). 
-{: .callout}
 
 
 The data comes in a compressed format, which is why there is a `.gz` at the end of the file names. This makes it faster to transfer, and allows it to take up less space on our computer. Let's unzip one of the files so that we can look at the fastq format.
