@@ -51,9 +51,11 @@ But take advantage of some of the time saved by **not** having to download the f
 Here we are using the `-p` option for `mkdir`. This option allows `mkdir` to create the new directory, even if one of the parent directories doesn't already exist. It also supresses errors if the directory already exists, without overwriting that directory. 
 
 It will take about 15 minutes to download the files.
+**At least, it would if you did actually had to download them.**
+
 ~~~
-mkdir -p ~/dc_workshop/data/untrimmed_fastq/
-cd ~/dc_workshop/data/untrimmed_fastq
+mkdir -p ~/course/data/untrimmed_fastq/
+cd ~/course/data/untrimmed_fastq
 
 curl -O ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR258/004/SRR2589044/SRR2589044_1.fastq.gz
 curl -O ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR258/004/SRR2589044/SRR2589044_2.fastq.gz
@@ -246,14 +248,19 @@ alias modgrep="module avail 2>&1 | grep"
 
 So from now on, just type "mods" to scroll through the available modules. 
 There is another alias called `modgrep` that you can use when you are searching for a **particular** module.
+Try it out to get a sense how it works.
 Again, if you feel that "modgrep" is a dumb name then feel free to edit ~/.bash_aliases to change it to something more memorable.
+You could even add `--ignore-case` after grep to make sure that "modgrep fastqc" matches "Fastqc" and "FastQC" as well as "fastqc".
+(Most module creators use all lowercase, but there is no guarantee that this is consistent.)
 
 ### Finding the right module
 
 Let's go back and have a look at the list of modules.
 The basic pattern is "username/software/version".  
 Sometimes you might see a group name instead of a username.
-Occassionally you might see "username/software/compiler/version"
+Occassionally you might see "username/software/compiler/version".
+These module names all look like file paths.
+There is a reason for this, which we'll get to in a moment.
 
 Generally speaking, you will usually want the latest version of the software or at least the latest version that is already available on the cluster.
 Sometimes you might want to use an older version in order to reproduce somebody's workflow, or follow a tutorial (like this one!)
@@ -272,6 +279,77 @@ In general, the "gi" group make pretty good modules.
 You might also recognise the user names of bioinformaticians in your group.
 In any case, if you are having trouble with a module don't be shy about reaching out to the person who made it.
 That's why we include the usernames as the first part of the module name.
+
+### Module location
+
+Module names look like file paths because that's what they are -- paths relative to the base module directory.
+And where is this base module directory of which I speak?
+Let's find out.
+~~~
+$ echo $MODULEPATH
+/share/ClusterShare/Modules/modulefiles/contrib:/usr/share/Modules/modulefiles:/etc/modulefiles
+$ cd /share/ClusterShare/Modules/modulefiles/contrib
+$ ls
+~~~
+{: .bash}
+
+You should see a whole bunch of directories named after six-letter Garvan usernames, as well a couple of directories with shorter names for groups.
+If you drill down a couple of more directories you will find the actual module definition files.
+
+~~~
+$ cd gi
+$ ls
+$ cd fastqc
+$ ls
+$ less 0.11.5
+~~~
+{: .bash}
+
+Don't worry too much about the content of the module definition file.
+We won't be making any modules as part of this course.
+But if you ever do need to make a module, then you now know where to put the definition files.
+And sometimes looking at a module file can give you a better idea of how it works.
+
+Note that the module definition file is not the actual software.
+That lives in another directory on the same volume (/share/ClusterShare) with a parallel directory structure.
+
+~~~
+$ cd /share/ClusterShare
+$ ls
+$ cd software
+$ ls
+$ cd contrib
+$ ls
+~~~
+{: .bash}
+
+Once again, you should see a lot of directories based on usernames.
+You'll also see a bunch of other random stuff that probably shouldn't be there.
+If you do need to install software on the cluster, please try to be tidy by keeping it all in the appropriate directory.
+
+Let's drill down into where the software actually lives.
+
+~~~
+$ cd gi
+$ ls
+$ cd fastqc
+$ ls
+$ cd 0.11.5
+$ ls
+$ less README.txt
+~~~
+{: .bash}
+
+In this directory you can find all of the files associated with the software that actually runs when you use a module.
+Most of the time you can happily ignore all of these files.
+But every now and then you might want to have a look at the "README" file or maybe check some of the configuration.
+This is where to find it.
+
+We won't be covering software installation in this course (unlesss we get some extra time at the end).
+But note that you can install software here **without** making it into a module, if it is for your own personal use.
+Of course, chances are that other people would benefit from your software too, so making a module is nice community-minded thing to do.
+You don't necessarily have to make a module, but I **do** encourage you to install software on /share/ClusterShare rather than in your home directory.
+Otherwise you risk blowing through your disk quota quite quickly.
 
 ### Compute nodes
 
