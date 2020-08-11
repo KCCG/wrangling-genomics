@@ -177,7 +177,77 @@ very poor (`#` = a quality score of 2).
 > {: .solution}
 {: .challenge}
 
-At this point, lets validate that all the relevant tools are installed. If you are using the AWS AMI then these _should_ be preinstalled. 
+## Loading software on the cluster
+
+There are a lot of software tools for doing bioinformatics.
+Keeping all of these tools loaded in memory all of the time would waste a lot of resources for things that you might only need occassionally.
+There is a LOT of software installed on the cluster, but to use it you first need to load it.
+
+### Searching for software modules
+
+To see a list of all the software modules installed on the cluster, type the following command:
+
+~~~
+$ module avail
+~~~
+
+There might be a brief pause before you see any response. 
+The first few lines of the output will look something like this:
+
+~~~
+--------------------------------- /share/ClusterShare/Modules/modulefiles/contrib ----------------------------------
+aarsta/bcftools/1.2                                gi/trim_galore/0.3.7
+aarsta/bcftools/1.6                                gi/trim_galore/0.4.0
+aarsta/bedtools/2.20.1                             gi/trimmomatic/0.30
+aarsta/bismark/0.13.0                              gi/trimmomatic/0.32
+~~~
+
+Actually, there are so many lines of output that it will probably scroll past you faster than you can keep up.
+Before we learn how to interpret this output, let's use pipes and redirection to break it into bite sized pieces.
+Type the following command (we'll worry about how it works in a moment):
+
+~~~
+module avail 2>&1 | less
+~~~
+
+You should see the modules listed one per line, in a "pageable" format.
+You can press the space bar to page down, or `b` to go back.
+In fact, all of your favourite `less` shortcuts will work. 
+For example, `/` to search, `n` to go to the next match and `q` to quit back to the command line.
+
+Type "/fastqc" to see which versions of the `fastqc` tool are available. 
+Then press "n" a few times to jump to the next match.
+Press "q" to quit when you are done.
+
+As we saw in the Shell Genomics workshop, anytime you have a command that produces way too much output for you to visually process, you can pipe the results through `less`.
+But here we need to do some fancy pants redirection to get the pipe to work.
+That because, in their wisdom, the authors of the `module` tool chose to print the results of "module avail" to the standard error output (STDERR) rather than to the standard output (STDOUT).
+Now both error messages (STDERR) and regular output (STDOUT) both normally get displayed on the terminal, so the distinction is not very important most of the time.
+But when you are piping and redirecting sometimes you need to be more specific.
+Here `2>` means "redirect the standard error stream (STDERR)" and `&1` is a "file descriptor" for the standard output (STDOUT).
+If all that gives you a headache, just remember "2>&1 |" as an idiom for "pipe the standard error stream to the next command". 
+
+Or, better still, you can create an `alias`.
+Actually, I saved you the trouble.
+If you type "alias" you will see a list of the aliases that have already been defined.
+
+~~~
+$ alias
+
+alias ll="ls -AlhF --directories-first"
+alias la="ls -aF"
+alias cdscr="cd /share/ScratchGeneral/${USER}" 
+alias hgrep="history | grep"
+alias mods="module avail 2>&1 | less"
+alias modgrep="module avail 2>&1 | grep"
+alias coursehome="cd /share/ScratchGeneral/${USER}/course"
+alias shrub="tree -L 3"
+~~~
+
+All of the alias definitions are in the form "alias A=B".
+Once an alias has been defined, you can type "A" instead of "B".
+For example, when I list files I like to have the directories at the top, 
+
 
 ~~~
 $ fastqc -h
