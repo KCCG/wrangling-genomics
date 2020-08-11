@@ -375,25 +375,16 @@ SRR2584863_2un.trim.fastq.gz  SRR2584866_2un.trim.fastq.gz  SRR2589044_2un.trim.
 >
 >> ## Solution
 >>
->> In your AWS terminal window do:
+>> On the cluster ...
 >>
 >> ~~~
->> $ fastqc ~/dc_workshop/data/trimmed_fastq/*.fastq*
+>> $ qrsh
+>> $ module load gi/fastqc/0.11.5
+>> $ fastqc ~/course/data/trimmed_fastq/*.fastq*
 >> ~~~
 >> {: .bash}
 >>
->> In a new tab in your terminal do:
->>
->> ~~~
->> $ mkdir ~/Desktop/fastqc_html/trimmed
->> $ scp dcuser@ec2-34-203-203-131.compute-1.amazonaws.com:~/dc_workshop/data/trimmed_fastq/*.html ~/Desktop/fastqc_html/trimmed
->> ~~~
->> {: .bash}
->> 
->> Then take a look at the html files in your browser.
->> 
->> Remember to replace everything between the `@` and `:` in your scp
->> command with your AWS instance number.
+>> Then use `sshfs` to view the HTML files on your laptop.
 >>
 >> After trimming and filtering, our overall quality is much higher, 
 >> we have a distribution of sequence lengths, and more samples pass 
