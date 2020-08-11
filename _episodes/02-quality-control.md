@@ -496,7 +496,7 @@ Here, we see positions within the read in which the boxes span a much wider rang
 We will now assess the quality of the reads that we downloaded. First, make sure you're still in the `untrimmed_fastq` directory
 
 ~~~
-$ cd ~/dc_workshop/data/untrimmed_fastq/ 
+$ cd ~/course/data/untrimmed_fastq/ 
 ~~~
 {: .bash}
 
@@ -595,9 +595,9 @@ will move these
 output files into a new directory within our `results/` directory.
 
 ~~~
-$ mkdir -p ~/dc_workshop/results/fastqc_untrimmed_reads 
-$ mv *.zip ~/dc_workshop/results/fastqc_untrimmed_reads/ 
-$ mv *.html ~/dc_workshop/results/fastqc_untrimmed_reads/ 
+$ mkdir -p ~/course/results/fastqc_untrimmed_reads 
+$ mv *.zip ~/course/results/fastqc_untrimmed_reads/ 
+$ mv *.html ~/course/results/fastqc_untrimmed_reads/ 
 ~~~
 {: .bash}
 
@@ -605,7 +605,7 @@ Now we can navigate into this results directory and do some closer
 inspection of our output files.
 
 ~~~
-$ cd ~/dc_workshop/results/fastqc_untrimmed_reads/ 
+$ cd ~/course/results/fastqc_untrimmed_reads/ 
 ~~~
 {: .bash}
 
@@ -614,14 +614,21 @@ $ cd ~/dc_workshop/results/fastqc_untrimmed_reads/
 If we were working on our local computers, we'd be able to look at 
 each of these HTML files by opening them in a web browser.
 
-However, these files are currently sitting on our remote AWS 
-instance, where our local computer can't see them.
-And, since we are only logging into the AWS instance via the 
+However, these files are currently sitting on the cluster.
+And, since we are only logging into the cluster via the 
 command line - it doesn't have any web browser setup to display 
 these files either.
 
 So the easiest way to look at these webpage summary reports will be 
 to transfer them to our local computers (i.e. your laptop).
+
+The simplest way to do this is using `sshfs` (or `sshfs-win`).
+If you connect to the cluster via sshfs and then navigate to the "results" directory, all you have to do is double click on an HTML file.
+It should open in a browser.
+
+Sometimes you do want to copy the results to your laptop, and the instructions below remind you how to do that with the `scp` command.
+But in the interests of time we'll just use sshfs.
+**Skip down to the exercise below**
 
 To transfer a file from a remote server to our own machines, we will
 use `scp`, which we learned yesterday in the Shell Genomics lesson. 
@@ -640,14 +647,11 @@ $ mkdir -p ~/Desktop/fastqc_html
 Now we can transfer our HTML files to our local computer using `scp`.
 
 ~~~
-$ scp dcuser@ec2-34-238-162-94.compute-1.amazonaws.com:~/dc_workshop/results/fastqc_untrimmed_reads/*.html ~/Desktop/fastqc_html
+$ scp username@dice01:/share/ScratchGeneral/username/course/results/fastqc_untrimmed_reads/*.html ~/Desktop/fastqc_html
 ~~~
 {: .bash}
 
-As a reminder, the first part
-of the command `dcuser@ec2-34-238-162-94.compute-1.amazonaws.com` is
-the address for your remote computer. Make sure you replace everything
-after `dcuser@` with your instance number (the one you used to log in). 
+If you try this, then don't forget to swap "username" for your actual username.
 
 The second part starts with a `:` and then gives the absolute path
 of the files you want to transfer from your remote computer. Don't
@@ -705,13 +709,11 @@ We've now looked at quite a few "Per base sequence quality" FastQC graphs, but t
 ## Working with the FastQC text output
 
 Now that we've looked at our HTML reports to get a feel for the data,
-let's look more closely at the other output files. Go back to the tab
-in your terminal program that is connected to your AWS instance
-(the tab label will start with `dcuser@ip`) and make sure you're in
-our results subdirectory.   
+let's look more closely at the other output files. 
+Make sure you're in our results subdirectory.   
 
 ~~~
-$ cd ~/dc_workshop/results/fastqc_untrimmed_reads/ 
+$ cd ~/course/results/fastqc_untrimmed_reads/ 
 $ ls 
 ~~~
 {: .bash}
@@ -880,10 +882,10 @@ us whether this sample passed, failed, or is borderline (`WARN`). Remember, to q
 We can make a record of the results we obtained for all our samples
 by concatenating all of our `summary.txt` files into a single file 
 using the `cat` command. We'll call this `fastqc_summaries.txt` and move
-it to `~/dc_workshop/docs`.
+it to `~/course/docs`.
 
 ~~~
-$ cat */summary.txt > ~/dc_workshop/docs/fastqc_summaries.txt 
+$ cat */summary.txt > ~/course/docs/fastqc_summaries.txt 
 ~~~
 {: .bash}
 
@@ -897,7 +899,7 @@ $ cat */summary.txt > ~/dc_workshop/docs/fastqc_summaries.txt
 >> We can get the list of all failed tests using `grep`. 
 >> 
 >> ~~~ 
->> $ cd ~/dc_workshop/docs
+>> $ cd ~/course/docs
 >> $ grep FAIL fastqc_summaries.txt
 >> ~~~
 >> {: .bash}
