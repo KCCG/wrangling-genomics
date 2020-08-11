@@ -26,6 +26,82 @@ We will use a program called
 [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic) to
 filter poor quality reads and trim poor quality bases from our samples.
 
+First we will need to find the appropriate module and get it working.
+Don't forget to get a compute node with `qrsh`.
+
+> ## Exercise
+>
+> 1) Figure out which trimmomatic module to use
+> 2) What happens when you try to load the module and type "trimmomatic" to test the installation?
+>
+>> ## Solution
+>> 1) gi/trimmomatic/0.36
+>> 2) Command not found
+> {: .solution}
+{: .challenge}
+
+Trimmomatic is a software tool that has been written using the Java programming language.
+As a general rule, Java programs are a bit of a headache.
+Let's do some detective work by taking a look at the Quick Start guide at the Trimmomatic link above.
+
+> ## Exercise
+>
+> What are the first three components of the command suggested in the Quick Start guide?
+>
+>> ## Solution
+>> java -jar trimmomatic-xxx.jar
+>> Here xxx is the version number.
+> {: .solution}
+{: .challenge}
+
+To run trimmomatic, we are going to have to find the .jar file.
+
+> ## Exercise
+>
+> Think back to the introductory overview of the cluster architecture.
+> Which volume is used to store modules?
+>
+>> ## Solution
+>> /share/ClusterShare
+> {: .solution}
+{: .challenge}
+
+> ## Exercise
+>
+> Follow your nose from the solution to the previous exercise, and try to locate the .jar file for trimmomatic
+> Clue: think about the module name from the first exercise in this chapter.
+>
+>> ## Solution
+>> /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar
+> {: .solution}
+{: .challenge}
+
+Phew. We are finally ready to test the software.
+
+> ## Exercise
+>
+> Run the following command to test the installation
+> ~~~
+> $ java -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar
+> ~~~
+>
+>> ## Solution
+>> ~~~
+>> Error occurred during initialization of VM
+>> Could not allocate metaspace: 1073741824 bytes
+>> ~~~
+> {: .solution}
+{: .challenge}
+
+
+java -Xmx4000M -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar \
+PE SRR2589044_1.fastq.gz SRR2589044_2.fastq.gz \
+SRR2589044_1.trim.fastq.gz SRR2589044_1un.trim.fastq.gz \
+SRR2589044_2.trim.fastq.gz SRR2589044_2un.trim.fastq.gz \
+SLIDINGWINDOW:4:20 MINLEN:25 ILLUMINACLIP:NexteraPE-PE.fa:2:40:15
+
+
+
 ## Trimmomatic Options
 
 Trimmomatic has a variety of options to trim your reads. If we run the following command, we can see some of our options.
