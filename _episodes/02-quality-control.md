@@ -192,6 +192,7 @@ $ module avail
 ~~~
 
 There might be a brief pause before you see any response. 
+In fact, there could be quite a long pause. Be patient!
 The first few lines of the output will look something like this:
 
 ~~~
@@ -229,27 +230,118 @@ If all that gives you a headache, just remember "2>&1 |" as an idiom for "pipe t
 
 Or, better still, you can create an `alias`.
 Actually, I saved you the trouble.
-If you type "alias" you will see a list of the aliases that have already been defined.
+
+### Handy aliases
+
+If you type "alias" at the command line, you should see an alias called "mods" which does just this.
 
 ~~~
 $ alias
-
-alias ll="ls -AlhF --directories-first"
-alias la="ls -aF"
-alias cdscr="cd /share/ScratchGeneral/${USER}" 
-alias hgrep="history | grep"
+...
+...
 alias mods="module avail 2>&1 | less"
 alias modgrep="module avail 2>&1 | grep"
-alias coursehome="cd /share/ScratchGeneral/${USER}/course"
-alias shrub="tree -L 3"
+...
 ~~~
 
-All of the alias definitions are in the form "alias A=B".
-Once an alias has been defined, you can type "A" instead of "B".
-For example, when I list files I like to have the directories at the top, 
+So from now on, just type "mods" to scroll through the available modules. 
+There is another alias called `modgrep` that you can use when you are searching for a **particular** module.
+Again, if you feel that "modgrep" is a dumb name then feel free to edit ~/.bash_aliases to change it to something more memorable.
 
+### Finding the right module
+
+Let's go back and have a look at the list of modules.
+The basic pattern is "username/software/version".  
+Sometimes you might see a group name instead of a username.
+Occassionally you might see "username/software/compiler/version"
+
+Generally speaking, you will usually want the latest version of the software or at least the latest version that is already available on the cluster.
+Sometimes you might want to use an older version in order to reproduce somebody's workflow, or follow a tutorial (like this one!)
+At this point, you can basically ignore the compiler information. 
+Just be sure to check all of the available versions, not just the first one that you see.
+Bioinformatics tools evolve quite quickly, and there can be big differences even between minor version numbers.
+In particular, make sure that you right versions of the tools for this workshop.
+
+
+I'm not going to tell you exactly which modules to use, because figuring that out is half the trick.
+Be warned, not every module is fully functional.
+In some cases, they need a complementary module to also be loaded at the same time.
+But the documentation on this is often sparse or non-existent.
+
+In general, the "gi" group make pretty good modules.
+You might also recognise the user names of bioinformaticians in your group.
+In any case, if you are having trouble with a module don't be shy about reaching out to the person who made it.
+That's why we include the usernames as the first part of the module name.
+
+### Compute nodes
+
+Before we start loading software, let's pause to think about where we are and what we are doing.
+Take a look at your prompt. 
+Mine looks like this (except colourful).
 
 ~~~
+johree@dice02:~:$
+~~~
+
+The "dice02" is there to remind me that I am currently logged in to the "login node" called "dice02".
+Most of the time, there will be a bunch of other people also logged in to this computer.
+If I start doing anything computationally intensive then the performance of the whole node will suffer, making life difficult for everyone else.
+And bioinformatics software can be **very** computationally intensive.
+So any time you want to do that kind of heavy lifting, make a habit of requesting a "compute node" first by using the `qrsh` command.
+A "compute node" is your own private computer in the cloud, and you can request whatever resources you think you will need.
+Just don't forget to release those resources when you are not using them by logging out from the compute node.
+
+~~~
+$ qrsh
+$ pwd
+$ ls
+$ exit
+~~~
+
+Notice how your prompt changes when you connect to a compute node.
+There is no need to note down the name of the node, but looking at your prompt can be a helpful reminder of where you are.
+Also note how all the files in your home directory and other volumes are still available to you from the compute node.
+The CPU and memory have changed, but you can take all your files with you and you still have access to all the same data.
+It's a bit like plugging an enormous USB memory stick into another computer.
+
+### Loading modules
+
+Once you have foundthe module you want, loading it is easy. Just type "module load".
+For example,
+
+~~~
+$ qrsh
+$ modgrep fastqc
+danrod/fastqc/0.10.1
+danrod/fastqc/0.11.4
+gi/fastqc/0.10.1
+gi/fastqc/0.11.1
+gi/fastqc/0.11.2
+gi/fastqc/0.11.3
+gi/fastqc/0.11.5
+leemar/fastqc/0.11.5
+marcow/fastqc/prebuilt/0.10.1
+
+$ module load gi/fastqc/0.11.5
+$ module list
+Currently Loaded Modulefiles:
+  1) rocks-openmpi      2) gi/fastqc/0.11.5
+  
+$ module unload gi/fastqc/0.11.5
+$ module list
+Currently Loaded Modulefiles:
+  1) rocks-openmpi
+$ exit
+~~~
+
+### Loading the fastqc module
+
+We will use fastqc version 0.11.5 by the GI group (that's Derrick and Manuel, by the way).
+Load the module and test that it is working by displaying the help menu.
+
+~~~
+$ qrsh
+$ module load gi/fastqc/0.11.5
 $ fastqc -h
             FastQC - A high throughput sequence QC analysis tool
 
@@ -365,16 +457,6 @@ BUGS
     or in www.bioinformatics.babraham.ac.uk/bugzilla/
 ~~~
 {: .bash}
-
-if fastqc is not installed then you would expect to see an error like
-
-~~~
-$ fastqc -h 
-The program 'fastqc' is currently not installed. You can install it by typing:
-sudo apt-get install fastqc
-~~~
-
-If this happens check with your instructor before trying to install it. 
 
 ## Assessing Quality using FastQC
 In real life, you won't be assessing the quality of your reads by visually inspecting your 
