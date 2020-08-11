@@ -93,6 +93,42 @@ Phew. We are finally ready to test the software.
 > {: .solution}
 {: .challenge}
 
+Grrrh. Did I mention that Java tools can be a headache?
+This is because Java software runs inside a "virtual machine" (VM) -- a kind of computer inside a computer.
+You don't need to understand all the technicalities, but you do need to allocate enough memory for the VM.
+That's what the "metaspace" message is all about.
+
+When you request a compute node with the `qrsh` command by default you get given a certain amount of memory.
+(Remind me to ask Derrick exactly how much.)
+For most applications, this is plenty.
+But sometimes you need to request more.
+After a bit of trial and error, it turns out that you need about 16 gigabytes of RAM.
+You can request it like this (log out of the compute node first):
+
+~~~
+$ qrsh -l mem_requested=16000M
+~~~
+
+Now you can finally run the basic trimmomatic command to verify that it is installed.
+
+~~~
+$ java -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar
+~~~
+{: .bash}
+
+~~~
+Usage: 
+       PE [-version] [-threads <threads>] [-phred33|-phred64] [-trimlog <trimLogFile>] [-quiet] [-validatePairs] [-basein <inputBase> | <inputFile1> <inputFile2>] [-baseout <outputBase> | <outputFile1P> <outputFile1U> <outputFile2P> <outputFile2U>] <trimmer1>...
+   or: 
+       SE [-version] [-threads <threads>] [-phred33|-phred64] [-trimlog <trimLogFile>] [-quiet] <inputFile> <outputFile> <trimmer1>...
+   or: 
+       -version
+~~~
+{: .output}
+
+One final comment about Java tools is that it often helps to put bounds on the minimum and maximum amount of memory that can be give to the VM.
+We do this with `-X` options, such as "-Xmx".
+Google it if you want to know details, but at least be aware that this kind of tweaking is often part and parcel of getting the tool to run.
 
 java -Xmx4000M -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar \
 PE SRR2589044_1.fastq.gz SRR2589044_2.fastq.gz \
@@ -104,23 +140,7 @@ SLIDINGWINDOW:4:20 MINLEN:25 ILLUMINACLIP:NexteraPE-PE.fa:2:40:15
 
 ## Trimmomatic Options
 
-Trimmomatic has a variety of options to trim your reads. If we run the following command, we can see some of our options.
-
-~~~
-$ trimmomatic
-~~~
-{: .bash}
-
-Which will give you the following output:
-~~~
-Usage: 
-       PE [-version] [-threads <threads>] [-phred33|-phred64] [-trimlog <trimLogFile>] [-summary <statsSummaryFile>] [-quiet] [-validatePairs] [-basein <inputBase> | <inputFile1> <inputFile2>] [-baseout <outputBase> | <outputFile1P> <outputFile1U> <outputFile2P> <outputFile2U>] <trimmer1>...
-   or: 
-       SE [-version] [-threads <threads>] [-phred33|-phred64] [-trimlog <trimLogFile>] [-summary <statsSummaryFile>] [-quiet] <inputFile> <outputFile> <trimmer1>...
-   or: 
-       -version
-~~~
-{: .output}
+Trimmomatic has a variety of options to trim your reads, as summarised by the "Usage" above.
 
 This output shows us that we must first specify whether we have paired end (`PE`) or single end (`SE`) reads.
 Next, we specify what flag we would like to run. For example, you can specify `threads` to indicate the number of
@@ -158,7 +178,8 @@ and options, see [the Trimmomatic manual](http://www.usadellab.org/cms/uploads/s
 However, a complete command for Trimmomatic will look something like the command below. This command is an example and will not work, as we do not have the files it refers to:
 
 ~~~
-$ trimmomatic PE -threads 4 SRR_1056_1.fastq SRR_1056_2.fastq  \
+$ java -Xmx4000M -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar \
+              PE -threads 4 SRR_1056_1.fastq SRR_1056_2.fastq  \
               SRR_1056_1.trimmed.fastq SRR_1056_1un.trimmed.fastq \
               SRR_1056_2.trimmed.fastq SRR_1056_2un.trimmed.fastq \
               ILLUMINACLIP:SRR_adapters.fa SLIDINGWINDOW:4:20
@@ -195,7 +216,7 @@ In this example, we've told Trimmomatic:
 Now we will run Trimmomatic on our data. To begin, navigate to your `untrimmed_fastq` data directory:
 
 ~~~
-$ cd ~/dc_workshop/data/untrimmed_fastq
+$ cd ~/course/data/untrimmed_fastq
 ~~~
 {: .bash}
 
