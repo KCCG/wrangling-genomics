@@ -130,13 +130,6 @@ One final comment about Java tools is that it often helps to put bounds on the m
 We do this with `-X` options, such as "-Xmx".
 Google it if you want to know details, but at least be aware that this kind of tweaking is often part and parcel of getting the tool to run.
 
-java -Xmx4000M -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar \
-PE SRR2589044_1.fastq.gz SRR2589044_2.fastq.gz \
-SRR2589044_1.trim.fastq.gz SRR2589044_1un.trim.fastq.gz \
-SRR2589044_2.trim.fastq.gz SRR2589044_2un.trim.fastq.gz \
-SLIDINGWINDOW:4:20 MINLEN:25 ILLUMINACLIP:NexteraPE-PE.fa:2:40:15
-
-
 
 ## Trimmomatic Options
 
@@ -210,7 +203,6 @@ In this example, we've told Trimmomatic:
 {: .callout}
 
 
-
 ## Running Trimmomatic
 
 Now we will run Trimmomatic on our data. To begin, navigate to your `untrimmed_fastq` data directory:
@@ -222,12 +214,7 @@ $ cd ~/course/data/untrimmed_fastq
 
 We are going to run Trimmomatic on one of our paired-end samples. 
 While using FastQC we saw that Nextera adapters were present in our samples. 
-The adapter sequences came with the installation of trimmomatic, so we will first copy these sequences into our current directory.
-
-~~~
-$ cp ~/.miniconda3/pkgs/trimmomatic-0.38-0/share/trimmomatic-0.38-0/adapters/NexteraPE-PE.fa .
-~~~
-{: .bash}
+The adapter sequences came with the installation of trimmomatic, and you can find them in your "untrimmed_fastq" directory as "NexteraPE-PE.fa".
 
 We will also use a sliding window of size 4 that will remove bases if their
 phred score is below 20 (like in our example above). We will also
@@ -235,7 +222,8 @@ discard any reads that do not have at least 25 bases remaining after
 this trimming step. This command will take a few minutes to run.
 
 ~~~
-$ trimmomatic PE SRR2589044_1.fastq.gz SRR2589044_2.fastq.gz \
+$ java -Xmx4000M -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar \
+                PE SRR2589044_1.fastq.gz SRR2589044_2.fastq.gz \
                 SRR2589044_1.trim.fastq.gz SRR2589044_1un.trim.fastq.gz \
                 SRR2589044_2.trim.fastq.gz SRR2589044_2un.trim.fastq.gz \
                 SLIDINGWINDOW:4:20 MINLEN:25 ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 
@@ -326,7 +314,8 @@ gzip SRR2584863_1.fastq
 $ for infile in *_1.fastq.gz
 > do
 >   base=$(basename ${infile} _1.fastq.gz)
->   trimmomatic PE ${infile} ${base}_2.fastq.gz \
+>   java -Xmx4000M -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar \
+>                PE ${infile} ${base}_2.fastq.gz \
 >                ${base}_1.trim.fastq.gz ${base}_1un.trim.fastq.gz \
 >                ${base}_2.trim.fastq.gz ${base}_2un.trim.fastq.gz \
 >                SLIDINGWINDOW:4:20 MINLEN:25 ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 
@@ -355,33 +344,12 @@ SRR2584863_2un.trim.fastq.gz  SRR2589044_1.fastq.gz
 ~~~
 {: .output}
 
-> ## Exercise
-> We trimmed our fastq files with Nextera adapters, 
-> but there are other adapters that are commonly used.
-> What other adapter files came with Trimmomatic?
->
->
->> ## Solution
->> ~~~
->> $ ls ~/miniconda3/pkgs/trimmomatic-0.38-0/share/trimmomatic-0.38-0/adapters/
->> ~~~
->> {: .bash}
->>
->> ~~~
->> NexteraPE-PE.fa  TruSeq2-SE.fa    TruSeq3-PE.fa
->> TruSeq2-PE.fa    TruSeq3-PE-2.fa  TruSeq3-SE.fa
->> ~~~
->> {: .output}
->>
-> {: .solution}
-{: .challenge}
-
 We've now completed the trimming and filtering steps of our quality
 control process! Before we move on, let's move our trimmed FASTQ files
 to a new subdirectory within our `data/` directory.
 
 ~~~
-$ cd ~/dc_workshop/data/untrimmed_fastq
+$ cd ~/course/data/untrimmed_fastq
 $ mkdir ../trimmed_fastq
 $ mv *.trim* ../trimmed_fastq
 $ cd ../trimmed_fastq
