@@ -299,17 +299,6 @@ $ ls SRR2589044* -l -h
 ***(Please "exit" the compute node promptly as soon as the command finishes successfully.)***
 
 We've just successfully run Trimmomatic on one of our FASTQ files!
-However, there is some bad news. Trimmomatic can only operate on
-one sample at a time and we have more than one sample. The good news
-is that we can use a `for` loop to iterate through our sample files
-quickly! 
-
-We unzipped one of our files before to work with it, let's compress it again before we run our for loop.
-
-~~~
-gzip SRR2584863_1.fastq 
-~~~
-{: .bash}
 
 ## Submitting jobs to the cluster
 
@@ -339,11 +328,12 @@ The content of this job script file looks like this.
 #$ -M user@garvan.org.au
 #$ -m ae
 
-### Parameters ###
+#=== Parameters ===
 SAMPLE=SRR2589044                            # Sample number (as used in fastq files for that sample)
 ADAPTER=ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 # Adapter sequences
 
-### Input and output files ###
+#=== Main script body ===
+# Define input and output files
 # Paired end input files 1 and 2
 INPUT_1=${SAMPLE}_1.fastq.gz
 INPUT_2=${SAMPLE}_2.fastq.gz
@@ -357,9 +347,11 @@ ORPHAN_2=${SAMPLE}_2un.trim.fastq.gz
 # Shortcut
 trimmomatic=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar
 
-### Main script body ###
+# Log which sample we are processing
 echo "Processing $SAMPLE with $ADAPTER"
-echo
+
+# Run the trimmomatic command with the specified input files and adapter
+# See trimmomatic manual for other options: http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
 java -Xmx4000M -jar $trimmomatic PE -threads $NSLOTS \
       $INPUT_1 $INPUT_2 \
       $SURVIVING_1 $SURVIVING_2 \
@@ -441,23 +433,171 @@ The line can be a bit blurry sometimes, but here are some rough rules of thumb.
 * Once you know what module/commands/options/steps you need to do, then there is a lot to be gained from spelling it all out in a job script and submitting the job via `qsub`. You have a record of exactly what you did, and SGE provides logs of the output and any errors. 
 * You can even use `qsub` jobs for relatively mundane tasks if you are confident that you know exactly how to do it. Examples include downloading a bunch of files, or moving files to or from another server.
 
+### Job logs
+
+TODO
+
+## Trimming all the files
+
+Trimmomatic can only operate on one sample at a time and we have more than one sample. 
+The good news is that we can use a `for` loop to iterate through our sample files quickly! 
+
+We unzipped one of our files before to work with it, let's compress it again before we run our for loop.
+
 ~~~
-$ for infile in *_1.fastq.gz
-> do
->   base=$(basename ${infile} _1.fastq.gz)
->   java -Xmx4000M -jar /share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar \
->                PE ${infile} ${base}_2.fastq.gz \
->                ${base}_1.trim.fastq.gz ${base}_1un.trim.fastq.gz \
->                ${base}_2.trim.fastq.gz ${base}_2un.trim.fastq.gz \
->                SLIDINGWINDOW:4:20 MINLEN:25 ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 
-> done
+gzip SRR2584863_1.fastq 
 ~~~
 {: .bash}
 
+Now all of the samples are starting off the same.
 
-Go ahead and run the for loop. It should take a few minutes for
-Trimmomatic to run for each of our six input files. Once it's done
-running, take a look at your directory contents. You'll notice that even though we ran Trimmomatic on file `SRR2589044` before running the for loop, there is only one set of files for it. Because we matched the ending `_1.fastq.gz`, we re-ran Trimmomatic on this file, overwriting our first results. That's ok, but it's good to be aware that it happened.
+### Making a job script
+
+Open the job script we were looking at a moment ago. 
+You can use `nano` if you like, but my strong recommendation is that you use `Atom` or `Sublime` via `sshfs`.
+Change the email address to match **your email address**, and save the file so that you can use it as a template each time you want to make a new job script.
+Then immediately save the file under a new name (such as "trim_all.sh") to prevent overwriting the template file.
+
+We'll break down the process of creating the `job script` into small steps.
+If you get stuck on a particular step, you can peek at the solution.
+Or if you are running behind then feel free to skip to the end and just type out the solution.
+You'll still learn something from seeing how it fits together, but I'd encourage you to try to figure it out step by step.
+
+> ## Exercise
+>
+> In trim_one.sh we only processed one sample.
+> Now we want to process three samples.
+> What are the sample codes for the three samples?
+>
+>> ## Solution
+>> ~~~
+>> $ cd ~/course/data/untrimmed_fastq
+>> $ ls
+>> NexteraPE-PE.fa        SRR2584863_2.fastq.gz  SRR2584866_2.fastq.gz  SRR2589044_2.fastq.gz
+>> SRR2584863_1.fastq.gz  SRR2584866_1.fastq.gz  SRR2589044_1.fastq.gz
+>> ~~~
+>> The sample codes are SRR2584863, SRR2584866 and SRR2589044
+> {: .solution}
+{: .challenge}
+
+> ## Exercise
+>
+> One way to create a `for` loop is to just hard code the sample codes into the loop.
+> Write a `for` loop that loops over the three sample codes and simply `echo`s the codes to the terminal.
+> (No need to write a job script for this.
+> A simple `for` loop typed directly into the terminal will do.
+>
+>> ## Solution
+>> You can simply write the sample codes, separated by spaces, as follows:
+>> ~~~
+>> $ for sample in SRR2584863 SRR2584866 SRR2589044; do echo $sample; done
+>> ~~~
+>> You can enter the `for` loop over multiple lines if you prefer.
+> {: .solution}
+{: .challenge}
+
+> ## Exercise
+>
+> Hard-coding details like this in the main body of script is difficult to read, maintain and debug.
+> We can parametize the list of sample codes as follows.
+> (Still no need to put this in a job script, use the command line to experiment.)
+> ~~~
+> $ sample_list="SRR2584863 SRR2584866 SRR2589044"
+> $ for sample in $sample_list; do echo $sample; done
+> ~~~
+> That's an improvement, but what if we didn't know the sample names or file names in advance?
+> 1) How can we use wildcards to get a list of the sample file names ending with "\_1.fastq.gz"?
+> 2) How can we extract the sample names from this list of file names? Hint: loop over the result from 1)
+>
+>> ## Solution
+>> 1) Use `*` to match any number of characters. You can store the result in a variable. For example..
+>> ~~~
+>> $ file_list=*_1.fastq.gz
+>> $ echo $file_list
+>> SRR2584863_1.fastq.gz SRR2584866_1.fastq.gz SRR2589044_1.fastq.gz
+>> ~~~
+>> 
+>> 2) Use `basename` to extract just the sample code
+>> ~~~
+>> $ file_list=*_1.fastq.gz
+>> for file in $file_list; do 
+>>     SAMPLE=$(basename $file _1.fastq.gz)
+>>     echo $SAMPLE
+>> done
+>> ~~~
+>> Here the `basename` command looks at each $file and strips off "_1.fastq.gz" from the end.
+>> The `$( )` surrounding the call to the `basename` command means "Run the command inside the parentheses and return the result."
+>> Here we assign that result to a variable called "SAMPLE".
+> {: .solution}
+{: .challenge}
+
+> ## Exercise
+>
+> Now that we have figured out how to loop over all of our samples, let's make a job script.
+> Merge the solution from the previous exercise with the content of "trim_one.sh".
+> Think about which bits belong in the "Parameters" section, and which bits belong in the main script body.
+> In particular, think carefully about what needs to go inside the `for` loop, and what can be left as a kind of prologue.
+> 
+> There is no shame in cheating here by peeking at the solution.
+> If you do, try to understand how the solution works then replicate it yourself.
+> If possible, wait until you have finished before checking your answer against the solution again.
+> But don't feel too bad about having another peek if necessary.
+>
+>> ## Solution
+>> ~~~
+>> #!/bin/bash
+>> #$ -S /bin/bash
+>> #$ -N trim_one 
+>> #$ -wd ~/course/data/untrimmed_fastq
+>> #$ -pe smp 4
+>> #$ -l mem_requested=16G
+>> #$ -M user@garvan.org.au
+>> #$ -m ae
+>>
+>> #=== Parameters ===
+>> =SRR2589044                            # Sample number (as used in fastq files for that sample)
+>> ADAPTER=ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 # Adapter sequences
+>> 
+>> #=== Main script body ===
+>> # Get list of files to work with
+>> FILE_LIST=*.fastq.gz
+>> # Shortcut
+>> trimmomatic=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar
+>> 
+>> # Loop over each sample
+>> for file in FILE_LIST; do
+>>    SAMPLE=$(basename $file _1.fastq.gz)
+>>    # Define input and output files
+>>    # Paired end input files 1 and 2
+>>    INPUT_1=${SAMPLE}_1.fastq.gz
+>>    INPUT_2=${SAMPLE}_2.fastq.gz
+>>    # Output files containing surviving reads (that were not removed)
+>>    SURVIVING_1=${SAMPLE}_1.trim.fastq.gz
+>>    SURVIVING_2=${SAMPLE}_2.trim.fastq.gz
+>>    # Output files containing orphan reads (that were trimmed out)
+>>    ORPHAN_1=${SAMPLE}_1un.trim.fastq.gz
+>>    ORPHAN_2=${SAMPLE}_2un.trim.fastq.gz
+>>    # Log which sample we are processing
+>>    echo "Processing $SAMPLE with $ADAPTER"
+>>    # Run the trimmomatic command with the specified input files and adapter
+>>    # See trimmomatic manual for other options: 
+>>    # http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
+>>    java -Xmx4000M -jar $trimmomatic PE -threads $NSLOTS \
+>>          $INPUT_1 $INPUT_2 \
+>>          $SURVIVING_1 $SURVIVING_2 \
+>>          $ORPHAN_1 $ORPHAN_2 \
+>>          SLIDINGWINDOW:4:20 MINLEN:25 $ADAPTER 
+>> done
+~~~
+> {: .solution}
+{: .challenge}
+
+Go ahead and submit the job. 
+It should take a few minutes for Trimmomatic to run for each of our six input files. 
+Once it's done running, take a look at your directory contents. 
+You'll notice that even though we ran Trimmomatic on file `SRR2589044` before running the for loop, there is only one set of files for it. 
+Because we matched the ending `_1.fastq.gz`, we re-ran Trimmomatic on this file, overwriting our first results. 
+That's ok, but it's good to be aware that it happened.
 
 ~~~
 $ ls
@@ -476,7 +616,7 @@ SRR2584863_2un.trim.fastq.gz  SRR2589044_1.fastq.gz
 {: .output}
 
 We've now completed the trimming and filtering steps of our quality
-control process! Before we move on, let's move our trimmed FASTQ files
+control process! Before we move on, let's tidy up by moving our trimmed FASTQ files
 to a new subdirectory within our `data/` directory.
 
 ~~~
@@ -496,7 +636,11 @@ SRR2584863_2un.trim.fastq.gz  SRR2584866_2un.trim.fastq.gz  SRR2589044_2un.trim.
 ~~~
 {: .output}
 
-> ## Bonus Exercise (Advanced)
+Actually, this kind of "tidying up" is quite common after running a job that produces a lot of output files.
+Although the tidy up commands above are not particularly intensive and so don't really warrant a job script of their own, it is quite common practice to include this kind of tidy up step at the end of the job script.
+If you like, copy and paste the `mkdir` and `mv` commands above at the bottom of your "trim_all.sh" job script (after the "done" statement).
+
+> ## Bonus Exercise
 >
 > Now that our samples have gone through quality control, they should perform
 > better on the quality tests run by FastQC. Go ahead and re-run
