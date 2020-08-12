@@ -334,7 +334,7 @@ The content of this job script file looks like this.
 #$ -S /bin/bash
 #$ -N trim_one 
 #$ -wd ~/course/data/untrimmed_fastq
-#$ -pe smp 2
+#$ -pe smp 4
 #$ -l mem_requested=16G
 #$ -M user@garvan.org.au
 #$ -m ae
@@ -360,7 +360,7 @@ trimmomatic=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic
 ### Main script body ###
 echo "Processing $SAMPLE with $ADAPTER"
 echo
-java -Xmx4000M -jar trimmomatic PE \
+java -Xmx4000M -jar $trimmomatic PE -threads $NSLOTS \
       $INPUT_1 $INPUT_2 \
       $SURVIVING_1 $SURVIVING_2 \
       $ORPHAN_1 $ORPHAN_2 \
@@ -398,7 +398,7 @@ These statements will be recorded in the job log, which we'll see in a moment.
 Finally, we run the same java command that we ran interactively a moment ago.
 Hopefully the structure is this command is a lot clearer now that we have gone to the trouble of creating variables for all of the different files.
 
-How do you run a `job script`? With the `qsub` command. **Don't try this just yet.**
+How do you run a `job script`? With the `qsub` command. Example below, but **don't try this just yet.**
 
 ~~~
 $ qsub trim_one.sh
@@ -418,16 +418,28 @@ Here I will just explain the instructions in the job script above.
 Open the script in nano, Atom or Sublime so that you can make a few changes as you read through.
 
 | instruction | meaning | 
+| ----------- | ------- |
 | #!/bin/bash | This isn't actually an instruction because it starts with "#!" (the "shebang") rather than "#$". This just allows you to run the job script as a regular bash script if the need arises. |
 | #$ -S /bin/bash | This tells the Sun Grid Engine to use bash for the shell. There are alternatives, but we won't worry about them here. |
 | #$ -N trim_one | This gives the job a name, which can be anything you like and does **not** have to match the file name of the job script. |
 | #$ -wd | This defines the work directory for the job. The SGE will `cd` to this directory before running any of the other commands. Use "-cwd" for "current working directory" when appropriate, but then you'll have to keep a record of what directory you were in. |
-| #$ -pe smp 2 | This instruction requests two CPU cores. Actually, you get two by default so this is kind of redundant. But **if** your job can make use of extra cores you can request more here. Use the $NSLOTS variable to tell the commands within your script to actually use all of the cores. |
-| #$ -l mem_requested=16G | This requests extra memory (RAM). **Note** that the total amount of memory allocated will be this value multiplied by the number of cores, so do some calculations and don't go overboard. |
+| #$ -pe smp 4 | This instruction requests four CPU cores. Use the $NSLOTS variable to tell the commands within your script to actually use all the cores. |
+| #$ -l mem_requested=5G | This requests extra memory (RAM). **Note** that the total amount of memory allocated will be this value multiplied by the number of cores, so do some calculations and don't go overboard. In this case we will get 4 x 5 = 20 GB. |
 | #$ -M user@garvan.org.au | This specifies an email address for notifications. Change it to your address!!! |
 | #$ -m bae | This specifies when notifications will be issued -- at the **b**eginning, when a job **a**borts or when it **e**nds. You decide how much you want to get spammed, but some kind of notification is helpful, especially for long-running jobs. |
 
+If that seems like a lot to remember then don't worry, you don't have to.
+You'll find a template file at `~/jobs/template.sh`. 
+You can start with this template file and just make a few minor changes, such as the job name.
+
 ### qrsh versus qsub
+
+So, when do you use `qrsh` and when should you use `qsub` instead?
+The line can be a bit blurry sometimes, but here are some rough rules of thumb.
+* `qrsh` is great when you are doing something "one-off", such as installing some software or downloading a file.
+* `qrsh` is also good for testing and development -- working out which module to use and how to use it, figuring out how much memory you need, or which options you need to use with a command.
+* Once you know what module/commands/options/steps you need to do, then there is a lot to be gained from spelling it all out in a job script and submitting the job via `qsub`. You have a record of exactly what you did, and SGE provides logs of the output and any errors. 
+* You can even use `qsub` jobs for relatively mundane tasks if you are confident that you know exactly how to do it. Examples include downloading a bunch of files, or moving files to or from another server.
 
 ~~~
 $ for infile in *_1.fastq.gz
