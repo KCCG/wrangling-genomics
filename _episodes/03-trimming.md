@@ -433,6 +433,9 @@ The line can be a bit blurry sometimes, but here are some rough rules of thumb.
 * Once you know what module/commands/options/steps you need to do, then there is a lot to be gained from spelling it all out in a job script and submitting the job via `qsub`. You have a record of exactly what you did, and SGE provides logs of the output and any errors. 
 * You can even use `qsub` jobs for relatively mundane tasks if you are confident that you know exactly how to do it. Examples include downloading a bunch of files, or moving files to or from another server.
 
+**Note**: You can run the `qsub` command from an interactive compute node that you requested with the `qrsh` command. 
+Quit out of the interactive node, and then submit the job from the login node.
+
 ### Job logs
 
 TODO
