@@ -310,6 +310,73 @@ gzip SRR2584863_1.fastq
 ~~~
 {: .bash}
 
+## Submitting jobs to the cluster
+
+We've finally got Trimmomatic working, but we had to request extra memory.
+And if a class full of people all request exta memory at the same time, this will leave less resources for the people doing real computational analysis.
+Fortunately there is another, more efficient way to use the computing resources on the cluster.
+This involves creating a `job script` and submitting a `job` to the cluster.
+
+A `job script` is basically the same as a bash script, but with a few extra features.
+Let's look at an example.
+
+~~~
+$ less --line-numbers ~/jobs/course/trim_one.sh
+~~~
+{: .bash}
+
+The content of this job script file looks like this.
+
+~~~
+#!/bin/bash
+#$ -S /bin/bash
+#$ -N trim_one 
+#$ -cwd
+#$ -l h_vmem=20G
+#$ -l mem_requested=16G
+#$ -M j.reeves@garvan.org.au
+#$ -m ae
+
+### Parameters ###
+# Location of the untrimmed reads
+WORKDIR=~/course/data/untrimmed_fastq
+# Sample number (as used in fastq files for that sample)
+SAMPLE=SRR2589044 
+# Adapter sequences
+ADAPTER=ILLUMINACLIP:NexteraPE-PE.fa:2:40:15
+
+### Input and output files ###
+# Paired end input files 1 and 2
+INPUT_1=${SAMPLE}_1.fastq.gz
+INPUT_2=${SAMPLE}_2.fastq.gz
+# Output files containing surviving reads (that were not removed)
+SURVIVING_1=${SAMPLE}_1.trim.fastq.gz
+SURVIVING_2=${SAMPLE}_2.trim.fastq.gz
+# Output files containing orphan reads (that were trimmed out)
+ORPHAN_1=${SAMPLE}_1un.trim.fastq.gz
+ORPHAN_2=${SAMPLE}_2un.trim.fastq.gz
+
+# Shortcut
+trimmomatic=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar
+
+### Main script body ###
+
+cd $WORKDIR
+echo "Trimming $SAMPLE in $WORKDIR"
+echo
+
+$ java -Xmx4000M -jar trimmomatic PE \
+                $INPUT_1 $INPUT_2 \
+                $SURVIVING_1 $SURVIVING_2 \
+                $ORPHAN_1 $ORPHAN_2 \
+                SLIDINGWINDOW:4:20 MINLEN:25 $ADAPTER 
+~~~
+{: .output}
+
+
+
+
+
 ~~~
 $ for infile in *_1.fastq.gz
 > do
