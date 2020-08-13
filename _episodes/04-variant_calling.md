@@ -33,15 +33,50 @@ The alignment process consists of two steps:
 
 # Setting up
 
-First we download the reference genome for *E. coli* REL606. Although we could copy or move the file with `cp` or `mv`, most genomics workflows begin with a download step, so we will practice that here. 
+First we download the reference genome for *E. coli* REL606. Although we could copy or move the file with `cp` or `mv`, most genomics workflows begin with a download step. 
+In the interests of time, the file has already been downloaded and placed in one of your directories. 
+The code below shows how this **would** have been acheived. 
+Study this code and try to figure out where the reference genome data would be stored.
 
 ~~~
-$ cd ~/dc_workshop
+$ cd ~/course
 $ mkdir -p data/ref_genome
 $ curl -L -o data/ref_genome/ecoli_rel606.fasta.gz ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/017/985/GCA_000017985.1_ASM1798v1/GCA_000017985.1_ASM1798v1_genomic.fna.gz
 $ gunzip data/ref_genome/ecoli_rel606.fasta.gz
 ~~~
 {: .bash}
+
+Actually, a bacterial genome is not **that** big, at least compared to mamallian genomes, so downloading it would not have been **too** time consuming.
+But don't download anything that you don't have to -- it's expensive and time-consuming.
+In fact, there is a lot of big biological data already on /share/ClusterShare.
+Navigate to /share/ClusterShare and poke around until you find it.
+You'll notice that a lot of it is organised into directories based on user names.
+That way you know who to ask if you have questions about a particular dataset.
+If you do need to download a lot of data, especially reference data, and you think it might be useful to others, make a directory and store the data here.
+
+I've placed the E.Coli reference genome data in my directory in biodata/contrib.
+You'll need to refer to this data as part of your analysis.
+But you won't need to actually modify this data.
+So instead of copying the data to your project, let's create a `link`.
+A `link` is like an "alias" on a Mac or a "shortcut" on Windows.
+(If that doesn't mean anything to you then don't worry, it will make more sense after you see it.)
+
+~~~
+$ ln --symbolic /share/ClusterShare/biodata/contrib/johree/ecoli_ref_genome ~/course/data/ref_genome
+$ cd ~/course/data
+$ ls --classify
+$ ls -l
+~~~
+{: .bash}
+
+In the first directory listing ("ls --classify") you should see an "@" symbol after "ref_genome".
+This indicates that "ref_genome" is a link rather than a "real" directory.
+In the second long form directory listing ("ls -l") you should see an arrow pointing from "ref_genome" to location where the real directory actually lives.
+
+Note that we have used the "--symbolic" option with the `ln` command ("-s" for short).
+This creates a "soft" link. 
+If you delete the link then the original file or directory will remain untouched, whereas with a "hard" link (without the "--symbolic" option) both the source and the destination will be deleted.
+Hopefully it is fairly obvious why that is generally not a good idea.
 
 > ## Exercise 
 > 
@@ -66,7 +101,7 @@ and will enable us to run our variant calling workflow quite quickly.
 ~~~
 $ curl -L -o sub.tar.gz https://ndownloader.figshare.com/files/14418248
 $ tar xvf sub.tar.gz
-$ mv sub/ ~/dc_workshop/data/trimmed_fastq_small
+$ mv sub/ ~/course/data/trimmed_fastq_small
 ~~~
 {: .bash}
 
