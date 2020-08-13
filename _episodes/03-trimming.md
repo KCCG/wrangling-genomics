@@ -99,7 +99,7 @@ You don't need to understand all the technicalities, but you do need to allocate
 That's what the "metaspace" message is all about.
 
 When you request a compute node with the `qrsh` command by default you get given a certain amount of memory.
-(Remind me to ask Derrick exactly how much.)
+By default (I think) you get two CPU cores and 4 GB of memory per core for a total of about 8 GB. 
 For most applications, this is plenty.
 But sometimes you need to request more.
 After a bit of trial and error, it turns out that you need about 16 gigabytes of RAM.
@@ -109,6 +109,7 @@ You can request it like this (log out of the compute node first):
 $ qrsh -l mem_requested=16000M
 ~~~
 
+Note that 16 GB is about 16000 MB.
 Now you can finally run the basic trimmomatic command to verify that it is installed.
 
 ~~~
