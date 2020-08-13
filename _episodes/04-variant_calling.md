@@ -95,8 +95,10 @@ Hopefully it is fairly obvious why that is generally not a good idea.
 > {: .solution}
 {: .challenge}
 
-We will also download a set of trimmed FASTQ files to work with. These are small subsets of our real trimmed data, 
-and will enable us to run our variant calling workflow quite quickly. 
+We will also download a set of trimmed FASTQ files to work with. 
+These are small subsets of our real trimmed data, and will enable us to run our variant calling workflow quite quickly. 
+Again, I've saved you the trouble of actually downloading the files, but do take a second to see how it would be done.
+Find the trimmed_fastq_small directory within your directory structure.
 
 ~~~
 $ curl -L -o sub.tar.gz https://ndownloader.figshare.com/files/14418248
@@ -113,6 +115,10 @@ names as input.
 $ mkdir -p results/sam results/bam results/bcf results/vcf
 ~~~
 {: .bash}
+
+Do you remember what the "-p" option does?
+Look up the `man` page if you are not sure.
+Use /-p to search the manual.
 
 
 ### Index the reference genome
