@@ -188,42 +188,56 @@ Each one of these has its own set of options.
 This kind of pattern is very common for bioinformatics tools.
 
 On a small bacterial genome, indexing is a relatively quick process.
-You could just run the command below interactively by requesting a compute node with `qrsh`.
-But let's practice making job scripts.
+There is no problem just running the command interactively on a compute node requested with `qrsh`.
+But we also want to practice making job scripts, and later we are going to wrap up our **entire** workflow into a job script.  
 
-> ## Exercise 
+This is a good chance to clarify how `qrsh` and `qsub` work together. 
+Request an interactive node with `qsub` before you run the rest of the commands in this chapter.
+(No need to request extra memory.) 
+But at the same time, create a new job script in `Atom` or `Sublime` (based on the job script template) and gradually keep track of the different steps as you go.
+Your script will evolve as you work through this chapter.
+You will load more modules, and run more commands.
+The outputs from one command will be the input for another command.
+You will make certain decisions about work directories and variables that you might end up reviewing.
+It's OK to change your mind, but by having your script open in an editor it is easy to capture each additional step.
+Once the script is "mature" you can run it using `qsub` to verify that you have correctly encapsulated the entire workflow.
+
+Some things to think about as you work on your script.
+
 > 1. Start with the job script template
 > 2. Change the name of the job
-> 3. Set the working directory (look at the command below).
-> 4. Load the correct module (from the previous exercise)
-> 5. Create a parameter variable called REF_GENOME, and set to the appropriate file (see command below).
-> 6. Run the command below, using the variable rather than hard-coding the file name.
-> 7. Submit the job with `qsub`.
-> 8. Check the logs to make sure that it worked.
-> 
-> ~~~
-> $ bwa index data/ref_genome/ecoli_rel606.fasta
-> ~~~
-> {: .bash}
-> 
->> ## Solution
->> 
->> In the log file, you should see output that looks something like this:
->>
->> ~~~
->> [bwa_index] Pack FASTA... 0.04 sec
->> [bwa_index] Construct BWT for the packed sequence...
->> [bwa_index] 1.05 seconds elapse.
->> [bwa_index] Update BWT... 0.03 sec
->> [bwa_index] Pack forward-only FASTA... 0.02 sec
->> [bwa_index] Construct SA from BWT and Occ... 0.57 sec
->> [main] Version: 0.7.17-r1188
->> [main] CMD: bwa index data/ref_genome/ecoli_rel606.fasta
->> [main] Real time: 1.765 sec; CPU: 1.715 sec
->> ~~~
->> {: .output}
-> {: .solution}
-{: .challenge}
+> 3. Set the working directory 
+> 4. Load all the necessary modules
+> 5. Work out which parts to parameterize, so that your script can be easily adopted to other files, other samples, or other projects.
+
+OK, back to working on the data...
+
+~~~
+$ qrsh
+$ module load marsmi/bwa/0.7.17 
+$ bwa index data/ref_genome/ecoli_rel606.fasta
+$ exit
+~~~
+{: .bash}
+
+The output should look something like this:
+~~~
+[bwa_index] Pack FASTA... 0.04 sec
+[bwa_index] Construct BWT for the packed sequence...
+[bwa_index] 1.05 seconds elapse.
+[bwa_index] Update BWT... 0.03 sec
+[bwa_index] Pack forward-only FASTA... 0.02 sec
+[bwa_index] Construct SA from BWT and Occ... 0.57 sec
+[main] Version: 0.7.17-r1188
+[main] CMD: bwa index data/ref_genome/ecoli_rel606.fasta
+[main] Real time: 1.765 sec; CPU: 1.715 sec
+~~~
+{: .output}
+
+Transfer the relavent parts of the command above to the job script in your editor.
+Include the module loading step. 
+Parameterize some parts as appropriate.
+For example, you could define a variable called REF_GENOME and then refer to this variable as part of the bwa command step.
 
 
 ### Align reads to reference genome
@@ -247,23 +261,17 @@ While we are running bwa with the default parameters here, your use case might r
 We're going to start by aligning the reads from just one of the samples in our dataset (`SRR2584866`). 
 Later, we'll be iterating this whole process on all of our sample files.
 
-This is the commmand that we want to run (but we'll do it with a `job script`).
+This is the commmand that we want to run.
 
 ~~~
+$ qrsh
+$ module load marsmi/bwa/0.7.17 
 $ bwa mem data/ref_genome/ecoli_rel606.fasta data/trimmed_fastq_small/SRR2584866_1.trim.sub.fastq data/trimmed_fastq_small/SRR2584866_2.trim.sub.fastq > results/sam/SRR2584866.aligned.sam
+$ exit
 ~~~
 {: .bash}
 
-Once again, create a job script to run this command.
-Parametise all of the input and output files by assigning them to variables.
-Think carefully about what to do with the work directory.
-The paths in the command above are `relative paths`. 
-What directory are they relative to?
-Don't forget to load the module.
-Rewrite the command to use variables rather than hard-coded file names.
-This will help when we generalise our script to iterate over all files in a moment.
-
-In the log file you will see output that starts like this: 
+The output starts like this: 
 
 ~~~
 [M::bwa_idx_load_from_disk] read 0 ALT contigs
@@ -278,6 +286,14 @@ In the log file you will see output that starts like this:
 [M::mem_pestat] analyzing insert size distribution for orientation FR...
 ~~~
 {: .output}
+
+Once again, modify your job script to incude this command.
+Parametise all of the input and output files by assigning them to variables.
+Think carefully about what to do with the work directory.
+The paths in the command above are `relative paths`. 
+What directory are they relative to?
+Rewrite the command to use variables rather than hard-coded file names.
+This will help when we generalise our script to iterate over all files in a moment.
 
 
 #### SAM/BAM format
@@ -301,21 +317,8 @@ An example entry from a SAM file is displayed below with the different fields hi
 
 ![sam_bam2](../img/sam_bam3.png)
 
-We will convert the SAM file to BAM format using the `samtools` program with the `view` command and tell this command that the input is in SAM format (`-S`) and to output BAM format (`-b`).
-The command and its output are shown below, but once again we will submit this as a job.
-
-~~~
-$ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR2584866.aligned.bam
-~~~
-{: .bash}
-
-~~~
-[samopen] SAM header is present: 1 sequences.
-~~~
-{: .output}
-
 > ## Exercise 
-> Which bwa modules are available on the cluster?
+> Which samtools modules are available on the cluster?
 > 
 >> ## Solution
 >> 
@@ -340,10 +343,6 @@ $ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR258486
 >> vxiuque/samtools
 >> ~~~
 >> {: .bash}
-{: .challenge}
-
->> ~~~
->> 
 > {: .solution}
 {: .challenge}
 
@@ -359,11 +358,29 @@ $ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR258486
 > {: .solution}
 {: .challenge}
 
-I won't hold your hand through the job script creation process this time.
-The thought process is basically the same as what you just did a moment ago.
-But you do have a design decision when it comes to parameterisation.
+We will convert the SAM file to BAM format using the `samtools` program with the `view` command and tell this command that the input is in SAM format (`-S`) and to output BAM format (`-b`).  
+Run the command interactively.
+
+~~~
+$ qrsh
+$ module load briglo/samtools/1.9
+$ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR2584866.aligned.bam
+$ exit
+~~~
+{: .bash}
+
+~~~
+[samopen] SAM header is present: 1 sequences.
+~~~
+{: .output}
+
+Edit your evolving job script to include this new step.
+Load the extra module.
+Note: you can do this in one step by tacking on another module at the end of the "module load" command.
+You have a design decision when it comes to parameterisation.
 You can either create two parameter variables (one for the input file and another for the output file) or you can create one parameter variable for the sample id.
 Which do you think is a better option?
+Is there a happy middle ground?
 
 
 ### Sort BAM file by coordinates
@@ -372,7 +389,10 @@ Next we sort the BAM file using the `sort` subcommand from `samtools`.
 `-o` tells the command where to write the output.
 
 ~~~
+$ qrsh
+$ module load briglo/samtools/1.9
 $ samtools sort -o results/bam/SRR2584866.aligned.sorted.bam results/bam/SRR2584866.aligned.bam 
+$ exit
 ~~~
 {: .bash}
 
@@ -382,13 +402,17 @@ Our files are pretty small, so we won't see this output. If you run the workflow
 ~~~
 {: .output}
 
+Once again, add this new step to your ever evolving job script.
 
 SAM/BAM files can be sorted in multiple ways, e.g. by location of alignment on the chromosome, by read name, etc. It is important to be aware that different alignment tools will output differently sorted SAM/BAM, and different downstream tools require differently sorted alignment files as input.
 
 You can use samtools to learn more about this bam file as well.
 
 ~~~
-samtools flagstat results/bam/SRR2584866.aligned.sorted.bam
+$ qrsh
+$ module load briglo/samtools/1.9
+$ samtools flagstat results/bam/SRR2584866.aligned.sorted.bam
+$ exit
 ~~~
 {: .bash}
 
@@ -410,26 +434,70 @@ This will give you the following statistics about your sorted bam file:
 0 + 0 with mate mapped to a different chr (mapQ>=5)
 ~~~
 {: .output}
+
+You could include this step in your job script if you want.
+If you do then output will be saved in the job logs.
+But it probably makes more sense to run this kind of command interactively, so you can leave it out of your job script if you want.
+
 ## Variant calling
 
 A variant call is a conclusion that there is a nucleotide difference vs. some reference at a given position in an individual genome
 or transcriptome, often referred to as a Single Nucleotide Polymorphism (SNP). The call is usually accompanied by an estimate of 
 variant frequency and some measure of confidence. Similar to other steps in this workflow, there are a number of tools available for 
-variant calling. In this workshop we will be using `bcftools`, but there are a few things we need to do before actually calling the 
-variants.
+variant calling. In this workshop we will be using `bcftools`.
+
+> ## Exercise 
+> Which bcftools modules are available on the cluster?
+> 
+>> ## Solution
+>> 
+>> ~~~
+>> modgrep bcftools
+>> aarsta/bcftools/1.2
+>> aarsta/bcftools/1.6
+>> aledre/bcftools/prebuilt/1.10
+>> annsen/bcftools/gcc-7.3.0/1.9
+>> briglo/bcftools/1.9
+>> evaben/bcftools/gcc-7.3.0/1.8
+>> evaben7/bcftools/1.9/gcc-8.2.0
+>> gi/bcftools/1.0
+>> julyin/bcftools/1.3.1
+>> pethum/bcftools/gcc-4.4.6/1.3
+>> ~~~
+>>
+> {: .solution}
+{: .challenge}
+
+> ## Exercise 
+> Which bcftools module should we use?
+>
+> Check the [software requirements](https://datacarpentry.org/genomics-workshop/setup.html) for this workshop.
+> 
+>> ## Solution
+>> 
+>> This time there are **three** modules for bcftools 1.9 on the cluster.
+>> Can you spot them all?
+>> We want evaben7/bcftools/1.9/gcc-8.2.0
+> {: .solution}
+{: .challenge}
+
+There are a few things we need to do before actually calling the variants.
 
 ![workflow](../img/variant_calling_workflow.png)
 
 ### Step 1: Calculate the read coverage of positions in the genome
 
 Do the first pass on variant calling by counting read coverage with 
-[bcftools](https://samtools.github.io/bcftools/bcftools.html). We will 
-use the command `mpileup`. The flag `-O b` tells bcftools to generate a 
-bcf format output file, `-o` specifies where to write the output file, and `-f` flags the path to the reference genome:
+[bcftools](https://samtools.github.io/bcftools/bcftools.html). 
+We will use the command `mpileup`. 
+The flag `-O b` tells bcftools to generate a bcf format output file, `-o` specifies where to write the output file, and `-f` flags the path to the reference genome:
 
 ~~~
+$ qrsh
+$ module load evaben7/bcftools/1.9/gcc-8.2.0
 $ bcftools mpileup -O b -o results/bcf/SRR2584866_raw.bcf \
 -f data/ref_genome/ecoli_rel606.fasta results/bam/SRR2584866.aligned.sorted.bam 
+$ exit
 ~~~
 {: .bash}
 
@@ -438,28 +506,46 @@ $ bcftools mpileup -O b -o results/bcf/SRR2584866_raw.bcf \
 ~~~
 {: .output}
 
+Once again, add this step to your growing `job script`.
+
 We have now generated a file with coverage information for every base.
 
 ### Step 2: Detect the single nucleotide polymorphisms (SNPs)
 
-Identify SNPs using bcftools `call`. We have to specify ploidy with the flag `--ploidy`, which is one for the haploid *E. coli*. `-m` allows for multiallelic and rare-variant calling, `-v` tells the program to output variant sites only (not every site in the genome), and `-o` specifies where to write the output file:
+Identify SNPs using bcftools `call`. 
+We have to specify ploidy with the flag `--ploidy`, which is one for the haploid *E. coli*. 
+`-m` allows for multiallelic and rare-variant calling, `-v` tells the program to output variant sites only (not every site in the genome), and `-o` specifies where to write the output file:
 
 ~~~
+$ qrsh
+$ module load evaben7/bcftools/1.9/gcc-8.2.0
 $ bcftools call --ploidy 1 -m -v -o results/bcf/SRR2584866_variants.vcf results/bcf/SRR2584866_raw.bcf 
+$ exit
 ~~~
 {: .bash}
+
+After running this command interactively, add it to your job script.
 
 ### Step 3: Filter and report the SNP variants in variant calling format (VCF)
 
 Filter the SNPs for the final output in VCF format, using `vcfutils.pl`:
 
 ~~~
+$ qrsh
+$ module load evaben7/bcftools/1.9/gcc-8.2.0
 $ vcfutils.pl varFilter results/bcf/SRR2584866_variants.vcf  > results/vcf/SRR2584866_final_variants.vcf
+$ exit
 ~~~
 {: .bash}
 
+You know the drill by now.
+Add this to your job script.
+
 
 ## Explore the VCF format:
+
+This next step is exploratory.
+You don't have to add it to your job script.
 
 ~~~
 $ less -S results/vcf/SRR2584866_final_variants.vcf
