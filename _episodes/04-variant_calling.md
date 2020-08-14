@@ -162,12 +162,11 @@ Before we can use bwa we'll need to find and load the appropriate module.
 >> timpet/bwa-meth/git_aaron_mem_patch
 >> ~~~
 >> 
->> Checking the [software requirements](https://datacarpentry.org/genomics-workshop/setup.html) for this workshop
 > {: .solution}
 {: .challenge}
 
 > ## Exercise 
-> Which bwa modules should we use?
+> Which bwa module should we use?
 >
 > Check the [software requirements](https://datacarpentry.org/genomics-workshop/setup.html) for this workshop.
 > 
@@ -290,18 +289,20 @@ While we do not have time to go into detail about the features of the SAM format
 **The compressed binary version of SAM is called a BAM file.** 
 We use this version to reduce size and to allow for *indexing*, which enables efficient random access of the data contained within the file.
 
-The file begins with a **header**, which is optional. The header is used to describe the source of data, reference sequence, method of
-alignment, etc., this will change depending on the aligner being used. Following the header is the **alignment section**. Each line
-that follows corresponds to alignment information for a single read. Each alignment line has **11 mandatory fields** for essential
-mapping information and a variable number of other fields for aligner specific information. An example entry from a SAM file is 
-displayed below with the different fields highlighted.
+The file begins with a **header**, which is optional. 
+The header is used to describe the source of data, reference sequence, method of alignment, etc., this will change depending on the aligner being used. 
+Following the header is the **alignment section**. 
+Each line that follows corresponds to alignment information for a single read. 
+Each alignment line has **11 mandatory fields** for essential mapping information and a variable number of other fields for aligner specific information. 
+An example entry from a SAM file is displayed below with the different fields highlighted.
 
 ![sam_bam1](../img/sam_bam.png)
 
 
 ![sam_bam2](../img/sam_bam3.png)
 
-We will convert the SAM file to BAM format using the `samtools` program with the `view` command and tell this command that the input is in SAM format (`-S`) and to output BAM format (`-b`): 
+We will convert the SAM file to BAM format using the `samtools` program with the `view` command and tell this command that the input is in SAM format (`-S`) and to output BAM format (`-b`).
+The command and its output are shown below, but once again we will submit this as a job.
 
 ~~~
 $ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR2584866.aligned.bam
@@ -312,6 +313,50 @@ $ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR258486
 [samopen] SAM header is present: 1 sequences.
 ~~~
 {: .output}
+
+> ## Exercise 
+> Which bwa modules are available on the cluster?
+> 
+>> ## Solution
+>> 
+>> ~~~
+>> $ modgrep samtools
+>> aarsta/samtools/0.1.19
+>> aledre/samtools/prebuilt/1.10
+>> annsen/samtools/gcc-7.3.0/1.9
+>> briglo/samtools/1.5
+>> briglo/samtools/1.9
+>> evaben/samtools/gcc-7.3.0/1.8
+>> evaben7/samtools/1.9/gcc-8.2.0
+>> gi/samtools/0.1.19
+>> gi/samtools/1.0
+>> gi/samtools/1.1
+>> gi/samtools/1.2
+>> marsmi/samtools/1.6
+>> marsmi/samtools/1.7
+>> vpethum/samtools/gcc-4.4.6/1.2
+>> pethum/samtools/gcc-4.4.6/1.3
+>> phuluu/samtools/1.4
+>> vxiuque/samtools
+>> ~~~
+>> {: .bash}
+
+>> ~~~
+>> 
+> {: .solution}
+{: .challenge}
+
+> ## Exercise 
+> Which samtools module should we use?
+>
+> Check the [software requirements](https://datacarpentry.org/genomics-workshop/setup.html) for this workshop.
+> 
+>> ## Solution
+>> 
+>> There are two modules for samtools 1.9 on the cluster.
+>> Previous groups have successfully completed this task using briglo/samtools/1.9
+> {: .solution}
+{: .challenge}
 
 
 ### Sort BAM file by coordinates
