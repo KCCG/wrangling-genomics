@@ -122,27 +122,110 @@ Use /-p to search the manual.
 
 
 ### Index the reference genome
-Our first step is to index the reference genome for use by BWA. Indexing allows the aligner to quickly find potential alignment sites for query sequences in a genome, which saves time during alignment. Indexing the reference only has to be run once. The only reason you would want to create a new index is if you are working with a different reference genome or you are using a different tool for alignment.
+Our first step is to index the reference genome for use by BWA. 
+Indexing allows the aligner to quickly find potential alignment sites for query sequences in a genome, which saves time during alignment. 
+Indexing the reference only has to be run once. 
+The only reason you would want to create a new index is if you are working with a different reference genome or you are using a different tool for alignment.
 
-~~~
-$ bwa index data/ref_genome/ecoli_rel606.fasta
-~~~
-{: .bash}
+Before we can use bwa we'll need to find and load the appropriate module.
 
-While the index is created, you will see output that looks something like this:
+> ## Exercise 
+> Which bwa modules are available on the cluster?
+> 
+>> ## Solution
+>> 
+>> ~~~
+>> $ modgrep bwa
+>> ~~~
+>> {: .bash}
+>> aarsta/bwa/0.7.9a
+>> aarsta/bwa-meth/0.09
+>> aarsta/bwa-meth/0.10
+>> aarsta/bwa-meth/git
+>> aarsta/bwa-meth/git_aaron
+>> evaben/bwa/gcc-7.3.0/0.7.15
+>> gi/bwa/0.5.8c
+>> gi/bwa/0.7.10
+>> gi/bwa/0.7.12
+>> gi/bwa/0.7.4
+>> gi/bwa/0.7.5a
+>> gi/bwa/0.7.6a
+>> gi/bwa/0.7.8
+>> gi/bwa/0.7.9a
+>> kevyin/bwa/0.6.2
+>> marcow/bwa/0.7.3a/gcc-4.4.6
+>> marcow/bwa/gcc-4.4.6/0.7.3a
+>> marsmi/bwa/0.7.17
+>> pethum/bwa/gcc-4.4.6/0.7.12
+>> pethum/bwakit/prebuilt/0.7.12
+>> phuluu/bwa-meth/0.10
+>> timpet/bwa-meth/git_aaron_mem_patch
+>> ~~~
+>> 
+>> Checking the [software requirements](https://datacarpentry.org/genomics-workshop/setup.html) for this workshop
+> {: .solution}
+{: .challenge}
 
-~~~
-[bwa_index] Pack FASTA... 0.04 sec
-[bwa_index] Construct BWT for the packed sequence...
-[bwa_index] 1.05 seconds elapse.
-[bwa_index] Update BWT... 0.03 sec
-[bwa_index] Pack forward-only FASTA... 0.02 sec
-[bwa_index] Construct SA from BWT and Occ... 0.57 sec
-[main] Version: 0.7.17-r1188
-[main] CMD: bwa index data/ref_genome/ecoli_rel606.fasta
-[main] Real time: 1.765 sec; CPU: 1.715 sec
-~~~
-{: .output}
+> ## Exercise 
+> Which bwa modules should we use?
+>
+> Check the [software requirements](https://datacarpentry.org/genomics-workshop/setup.html) for this workshop.
+> 
+>> ## Solution
+>> 
+>> marsmi/bwa/0.7.17
+> {: .solution}
+{: .challenge}
+
+The command for indexing the reference genome, shown below, is quite simple.
+But it is a good idea to consult reference manuals even when following a recipe.
+That way you can understand what is happening, or notice other options that might be useful for what you are trying to do.
+There might also be warnings, cautions or other "gotchas" that you need to avoid.
+
+Have a quick look at the reference manual for `bwa`: http://bio-bwa.sourceforge.net/bwa.shtml
+In particular, scan the section for "bwa index" in the [Commands and Options](http://bio-bwa.sourceforge.net/bwa.shtml#3) section.
+What you will (hopefully) notice is that `bwa` has mutiple `subcommands` such as `index`, `mem` and `aln`.
+Each one of these has its own set of options.
+This kind of pattern is very common for bioinformatics tools.
+
+On a small bacterial genome, indexing is a relatively quick process.
+You could just run the command below interactively by requesting a compute node with `qrsh`.
+But let's practice making job scripts.
+
+> ## Exercise 
+> 1. Start with the job script template
+> 2. Change the name of the job
+> 3. Set the working directory (look at the command below).
+> 4. Load the correct module (from the previous exercise)
+> 5. Create a parameter variable called REF_GENOME, and set to the appropriate file (see command below).
+> 6. Run the command below, using the variable rather than hard-coding the file name.
+> 7. Submit the job with `qsub`.
+> 8. Check the logs to make sure that it worked.
+> 
+> ~~~
+> $ bwa index data/ref_genome/ecoli_rel606.fasta
+> ~~~
+> {: .bash}
+> 
+>> ## Solution
+>> 
+>> In the log file, you should see output that looks something like this:
+>>
+>> ~~~
+>> [bwa_index] Pack FASTA... 0.04 sec
+>> [bwa_index] Construct BWT for the packed sequence...
+>> [bwa_index] 1.05 seconds elapse.
+>> [bwa_index] Update BWT... 0.03 sec
+>> [bwa_index] Pack forward-only FASTA... 0.02 sec
+>> [bwa_index] Construct SA from BWT and Occ... 0.57 sec
+>> [main] Version: 0.7.17-r1188
+>> [main] CMD: bwa index data/ref_genome/ecoli_rel606.fasta
+>> [main] Real time: 1.765 sec; CPU: 1.715 sec
+>> ~~~
+>> {: .output}
+> {: .solution}
+{: .challenge}
+
 
 ### Align reads to reference genome
 
@@ -150,27 +233,38 @@ The alignment process consists of choosing an appropriate reference genome to ma
 aligner. We will use the BWA-MEM algorithm, which is the latest and is generally recommended for high-quality queries as it 
 is faster and more accurate.
 
-An example of what a `bwa` command looks like is below. This command will not run, as we do not have the files `ref_genome.fa`, `input_file_R1.fastq`, or `input_file_R2.fastq`.
+An example of what a `bwa` command looks like is below. 
+This command will not run, as we do not have the files `ref_genome.fa`, `input_file_R1.fastq`, or `input_file_R2.fastq`.
 
 ~~~
 $ bwa mem ref_genome.fasta input_file_R1.fastq input_file_R2.fastq > output.sam
 ~~~
 {: .bash}
 
-Have a look at the [bwa options page](http://bio-bwa.sourceforge.net/bwa.shtml). While we are running bwa with the default 
-parameters here, your use case might require a change of parameters. *NOTE: Always read the manual page for any tool before using 
-and make sure the options you use are appropriate for your data.*
+Have a look at the [bwa options page](http://bio-bwa.sourceforge.net/bwa.shtml). 
+While we are running bwa with the default parameters here, your use case might require a change of parameters.
+*NOTE: Always read the manual page for any tool before using and make sure the options you use are appropriate for your data.*
 
-We're going to start by aligning the reads from just one of the 
-samples in our dataset (`SRR2584866`). Later, we'll be 
-iterating this whole process on all of our sample files.
+We're going to start by aligning the reads from just one of the samples in our dataset (`SRR2584866`). 
+Later, we'll be iterating this whole process on all of our sample files.
+
+This is the commmand that we want to run (but we'll do it with a `job script`).
 
 ~~~
 $ bwa mem data/ref_genome/ecoli_rel606.fasta data/trimmed_fastq_small/SRR2584866_1.trim.sub.fastq data/trimmed_fastq_small/SRR2584866_2.trim.sub.fastq > results/sam/SRR2584866.aligned.sam
 ~~~
 {: .bash}
 
-You will see output that starts like this: 
+Once again, create a job script to run this command.
+Parametise all of the input and output files by assigning them to variables.
+Think carefully about what to do with the work directory.
+The paths in the command above are `relative paths`. 
+What directory are they relative to?
+Don't forget to load the module.
+Rewrite the command to use variables rather than hard-coded file names.
+This will help when we generalise our script to iterate over all files in a moment.
+
+In the log file you will see output that starts like this: 
 
 ~~~
 [M::bwa_idx_load_from_disk] read 0 ALT contigs
@@ -189,11 +283,12 @@ You will see output that starts like this:
 
 #### SAM/BAM format
 The [SAM file](https://genome.sph.umich.edu/wiki/SAM),
-is a tab-delimited text file that contains information for each individual read and its alignment to the genome. While we do not 
-have time to go into detail about the features of the SAM format, the paper by 
+is a tab-delimited text file that contains information for each individual read and its alignment to the genome. 
+While we do not have time to go into detail about the features of the SAM format, the paper by 
 [Heng Li et al.](http://bioinformatics.oxfordjournals.org/content/25/16/2078.full) provides a lot more detail on the specification.
 
-**The compressed binary version of SAM is called a BAM file.** We use this version to reduce size and to allow for *indexing*, which enables efficient random access of the data contained within the file.
+**The compressed binary version of SAM is called a BAM file.** 
+We use this version to reduce size and to allow for *indexing*, which enables efficient random access of the data contained within the file.
 
 The file begins with a **header**, which is optional. The header is used to describe the source of data, reference sequence, method of
 alignment, etc., this will change depending on the aligner being used. Following the header is the **alignment section**. Each line
