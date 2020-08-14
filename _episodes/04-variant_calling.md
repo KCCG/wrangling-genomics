@@ -66,6 +66,7 @@ $ ln --symbolic /share/ClusterShare/biodata/contrib/johree/ecoli_ref_genome ~/co
 $ cd ~/course/data
 $ ls --classify
 $ ls -l
+$ cd ~/course/data/ref_genome
 ~~~
 {: .bash}
 
@@ -266,7 +267,10 @@ This is the commmand that we want to run.
 ~~~
 $ qrsh
 $ module load marsmi/bwa/0.7.17 
-$ bwa mem data/ref_genome/ecoli_rel606.fasta data/trimmed_fastq_small/SRR2584866_1.trim.sub.fastq data/trimmed_fastq_small/SRR2584866_2.trim.sub.fastq > results/sam/SRR2584866.aligned.sam
+$ bwa mem data/ref_genome/ecoli_rel606.fasta \  
+          data/trimmed_fastq_small/SRR2584866_1.trim.sub.fastq \  
+          data/trimmed_fastq_small/SRR2584866_2.trim.sub.fastq \ 
+          > results/sam/SRR2584866.aligned.sam
 $ exit
 ~~~
 {: .bash}
