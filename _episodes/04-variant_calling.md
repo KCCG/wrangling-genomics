@@ -340,6 +340,7 @@ $ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR258486
 >> vxiuque/samtools
 >> ~~~
 >> {: .bash}
+{: .challenge}
 
 >> ~~~
 >> 
@@ -358,10 +359,17 @@ $ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR258486
 > {: .solution}
 {: .challenge}
 
+I won't hold your hand through the job script creation process this time.
+The thought process is basically the same as what you just did a moment ago.
+But you do have a design decision when it comes to parameterisation.
+You can either create two parameter variables (one for the input file and another for the output file) or you can create one parameter variable for the sample id.
+Which do you think is a better option?
+
 
 ### Sort BAM file by coordinates
 
-Next we sort the BAM file using the `sort` command from `samtools`. `-o` tells the command where to write the output.
+Next we sort the BAM file using the `sort` subcommand from `samtools`. 
+`-o` tells the command where to write the output.
 
 ~~~
 $ samtools sort -o results/bam/SRR2584866.aligned.sorted.bam results/bam/SRR2584866.aligned.bam 
