@@ -243,9 +243,9 @@ For example, you could define a variable called REF_GENOME and then refer to thi
 
 ### Align reads to reference genome
 
-The alignment process consists of choosing an appropriate reference genome to map our reads against and then deciding on an 
-aligner. We will use the BWA-MEM algorithm, which is the latest and is generally recommended for high-quality queries as it 
-is faster and more accurate.
+We will use the BWA-MEM algorithm, which is suited well to aligning accurate short-read transcriptomic Illumina data to genomic sequences. 
+Alternatively, aligners such as minimap2 are well-suited for aligning noisy long-read data or short-read genomic Illumina data. 
+The appropriate choice of aligner depending on the sequencing read types is crucial for down-stream high-quality genomic data analysis and some time should be spent choosing the best tool for the job.
 
 An example of what a `bwa` command looks like is below. 
 This command will not run, as we do not have the files `ref_genome.fa`, `input_file_R1.fastq`, or `input_file_R2.fastq`.
