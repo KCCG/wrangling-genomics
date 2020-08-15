@@ -11,6 +11,10 @@ keypoints:
 - "We can combine multiple commands into a shell script to automate a workflow."
 - "Use `echo` statements within your scripts to get an automated progress update."
 ---
+The original Data Wrangling and Processing Genomics workshop finishes up by writing a script that encapsulates the entire workflow.
+We've already been writing scripts in order to submit them as jobs.
+But it's still worthwhile reviewing some of the fundamentals.
+
 # What is a shell script?
 
 You wrote a simple shell script in a [previous lesson](http://www.datacarpentry.org/shell-genomics/05-writing-scripts/) that we used to extract bad reads from our
@@ -30,13 +34,15 @@ than that and can be used to perform a large number of operations on one or many
 files. This saves you the effort of having to type each of those commands over for
 each of your data files and makes your work less error-prone and more reproducible. 
 For example, the variant calling workflow we just carried out had about eight steps
-where we had to type a command into our terminal. Most of these commands were pretty 
-long. If we wanted to do this for all six of our data files, that would be forty-eight
-steps. If we had 50 samples (a more realistic number), it would be 400 steps! You can
-see why we want to automate this.
+where we had to type a command into our terminal. 
+Most of these commands were pretty long. 
+If we wanted to do this for all six of our data files, that would be forty-eight steps. 
+If we had 50 samples (a more realistic number), it would be 400 steps! 
+You can see why we want to automate this.
 
 We've also used `for` loops in previous lessons to iterate one or two commands over multiple input files. 
-In these `for` loops, the filename was defined as a variable in the `for` statement, which enabled you to run the loop on multiple files. We will be using variable assignments like this in our new shell scripts.
+In these `for` loops, the filename was defined as a variable in the `for` statement, which enabled you to run the loop on multiple files. 
+We will be using variable assignments like this in our new shell scripts.
 
 Here's the `for` loop you wrote for unzipping `.zip` files: 
 
@@ -48,7 +54,10 @@ $ for filename in *.zip
 ~~~
 {: .bash}
 
-And here's the one you wrote for running Trimmomatic on all of our `.fastq` sample files:
+You also wrote a loop for running Trimmomatic on all of our `.fastq` sample files.
+Here is the version from the original workship.
+There are a few differences, but the structure is basically the same.
+See if you can following the logic in the loop below.
 
 ~~~
 $ for infile in *_1.fastq.gz
@@ -75,73 +84,159 @@ In this lesson, we'll use two shell scripts to automate the variant calling anal
 
 # Analyzing Quality with FastQC
 
-We will use the command `touch` to create a new file where we will write our shell script. We will create this script in a new
-directory called `scripts/`. Previously, we used
-`nano` to create and open a new file. The command `touch` allows us to create a new file without opening that file.
+Let's write a `job script` for the quality control processing that we previously entered directly into the command line.
+Open the job script template in Atom or Sublime (via sshfs) and immediately save it under a new name.
 
-~~~
-$ mkdir -p ~/dc_workshop/scripts
-$ cd ~/dc_workshop/scripts
-$ touch read_qc.sh
-$ ls 
-~~~
-{: .bash}
+## === Job instructions ===
 
-~~~
-read_qc.sh
-~~~
-{: .output}
+The first section of our job script consists of job instructions (staring wtih #$).
+Review the instructions in the template, and change as appropriate.
 
-We now have an empty file called `read_qc.sh` in our `scripts/` directory. We will now open this file in `nano` and start
-building our script.
+> ## Exercise
+> 1. What should we do about the number of cores (#$ -pe smp)?
+> Look up the [fastqc documentation](https://manpages.debian.org/stretch/fastqc/fastqc.1.en.html) and see if this tool can use multiple threads/cores.
+> 2. What about memory? Will you need to request extra memory?
+>> ## Solution
+>> 
+>> 1. Yes, you can use the `--threads` option.
+>> This option will process multiple files in parallel, using one file per thread.
+>> So there is no point requesting more threads than the number of files to process.
+>> 2. No. Fastqc needs 250 MB per thread (see the documentation) but SGE gives us 4 GB (=4000 MB) per core which is more than enough.
+>> This command worked fine without extra memory when we ran it interactively before, so no need to request more memory as a job script.
+>> In fact, you can delete the "#$ -l mem_requested" instruction if you want.
+>> {: .bash}
+> {: .solution}
+{: .challenge}
 
-~~~
-$ nano read_qc.sh
-~~~
-{: .bash}
+## === Modules ===
 
-**Enter the following pieces of code into your shell script (not into your terminal prompt).**
+Do you remember which module you used for FastQC?
+Me neither. 
+You can look back at chapter 2 or you can consult your `history`.
 
-Our first line will ensure that our script will exit if an error occurs, and is a good idea to include at the beginning of your scripts. The second line will move us into the `untrimmed_fastq/` directory when we run our script.
+There are three good ways to quickly check your history.
+1) Type <kbd>Control</kbd>-<kbd>R</kbd> and then start typing your search term (eg. "fastqc").
+This will find the last time you typed that term.
+As you type more letters, the search updates each time. 
+Keep pressing <kbd>Control</kbd>-<kbd>R</kbd> repeatedly to scroll back through earlier matches.
+2) Use the `hgrep` alias that I set up for you.
+Type "alias" to see how it works under the hood.
+Or just type "hgrep fastqc" to see a list of all the times you have ever used the search term "fastqc".
+3) Pipe history through `less` by typing "history | less".
+Then you can either page through your history with <kbd>space</kbd>, or jump to the most recent commands with <kbd>shift</kbd>-<kbd>g</kbd> and then scroll backwards with <kbd>b</kbd>. 
+Alternatively, you can search your history by typing "/" followed by the search term (use "?" to search backwards) and tap <kbd>n</kbd> for the next match.
+The advantage of this method is that you can see the context before and after the match as well, which is really helpful especially when you can't remember the name of a command but you **do** remember what you did just before or after that command.
+This combination is so useful, you could even consider making an alias for it.
+{: .callout}
+
+Now that you have found the right module, enter a line in the script to load it.
+
+## === Parameters ===
+
+It might not be obvious what the parameters are this point.
+But as you work your way through the script, look out for variables that belong here.
+
+## === Main script body ===
+
+There is a neat little hack that you can use in both job scripts and regular bash scripts.
 
 ~~~
 set -e
-cd ~/dc_workshop/data/untrimmed_fastq/
 ~~~
-{: .output}
 
-These next two lines will give us a status message to tell us that we are currently running FastQC, then will run FastQC
-on all of the files in our current directory with a `.fastq` extension. 
+The `set` command makes various "settings" to your bash environment.
+The "-e" flag tells bash to terminate the whole script the moment any command in the script fails.
+(More precisely, the moment that any command has a non-zero exit status. Google it if you are curious.)
+This is so handy that you probably want to include it in pretty much all of your scripts.
+You can put it right up near the top of the script, or at the beginning of the main script body.
+Go ahead and update your template. I'll wait.
 
+These next two lines should look something like this.
 ~~~
-echo "Running FastQC ..."
+echo "Running FastQC in " $PWD
 fastqc *.fastq*
 ~~~
-{: .output}
 
-Our next line will create a new directory to hold our FastQC output files. Here we are using the `-p` option for `mkdir` again. It is a good idea to use this option in your shell scripts to avoid running into errors if you don't have the directory structure you think you do.
+The echo statement lets us know that the script managed to progress to this point.
+By including a variable in the statement (in this case `PWD`) it also provides information that can be helpful for debugging.
+If something goes wrong then knowing that you were in the wrong directory when the `fastqc` command executed might be just the clue you need.
 
-~~~
-mkdir -p ~/dc_workshop/results/fastqc_untrimmed_reads
-~~~
-{: .output}
+> ## Exercise
+> Which directory do you want to be in anyway?
+>
+>> ## Solution
+>> The `.fastq` files that we want to analyse are in ~/course/data/untrimmed_fastq/
+>> You might need to `cd` into that directory before you run the `fastqc` command.
+>> This will depend on what you specified for the `#$ -wd` job instruction.
+>> There is more than one way to do this -- just make sure that you think it through carefully.
+>> You might want to define a variable to hold the location of the data files.
+>> This might be a parameter.
+>> (These are hints, not instructions. Find your own solution.)
+>> {: .bash}
+> {: .solution}
+{: .challenge}
 
-Our next three lines first give us a status message to tell us we are saving the results from FastQC, then moves all of the files
-with a `.zip` or a `.html` extension to the directory we just created for storing our FastQC results. 
+## == Tidying up ===
+
+The `fastqc` command spits out a bunch of result files that you should tidy up neatly.
+
+Our next line will create a new directory to hold our FastQC output files. 
+You will need to use the `-p` option for `mkdir` again. 
+It is a good idea to use this option in your shell scripts to avoid running into errors if you don't have the directory structure you think you do.
+
+> ## Exercise
+> 1. How can we create the following directory?
+> ~~~
+> ~/course/results/fastqc_untrimmed_reads
+> ~~~
+> Assume that you are not sure if ~/course/results/ exists.
+> 
+> 2. How can you parameterize this command?
+>> ## Solution
+>> 1. Use the `-p` option as follows.
+>> ~~~
+>> mkdir -p ~/course/results/fastqc_untrimmed_reads
+>> ~~~
+>> 2. There several ways to paramerize this.
+>> a) Using an absolute path ...
+>> ~~~
+>> RESULT_DIR=~/course/results/fastqc_untrimmed_reads
+>> mkdir -p $RESULT_DIR
+>> ~~~
+>> b) Or using a relative path ...
+>> ~~~
+>> RESULT_DIR=results/fastqc_untrimmed_reads
+>> mkdir -p $RESULT_DIR
+>> ~~~
+>> This option assumes that your current directory is ~/course
+>>
+>> Whichever you decide on, include it in your job script rather than entering it in the terminal.
+>> {: .bash}
+> {: .solution}
+{: .challenge}
+
+As part of the tidy up, you need to move all of the files with a `.zip` or a `.html` extension to the directory we just created for storing our FastQC results. 
+(Now you see why defining a variable was worth the effort.) 
+Once again it is a good idea to include a status message.
 
 ~~~
 echo "Saving FastQC results..."
-mv *.zip ~/dc_workshop/results/fastqc_untrimmed_reads/
-mv *.html ~/dc_workshop/results/fastqc_untrimmed_reads/
+mv *.zip $RESULT_DIR
+mv *.html $RESULT_DIR
 ~~~
 {: .output}
 
 The next line moves us to the results directory where we've stored our output.
+Variables may feel like extra work to set up in the first place, but often they save you a lot of time later.
+More importantly, if you change something (such as where you want the results stored) you only have to change it in one place.
 
 ~~~
-cd ~/dc_workshop/results/fastqc_untrimmed_reads/
+cd $RESULT_DIR
 ~~~
 {: .output}
+
+Hopefully by now you have realised that RESULTS_DIR is really a kind of parameter.
+If necessary, move it to the "Parameters" block.
 
 The next five lines should look very familiar. First we give ourselves a status message to tell us that we're unzipping our ZIP
 files. Then we run our for loop to unzip all of the `.zip` files in this directory.
@@ -149,9 +244,9 @@ files. Then we run our for loop to unzip all of the `.zip` files in this directo
 ~~~
 echo "Unzipping..."
 for filename in *.zip
-    do
-    unzip $filename
-    done
+do
+  unzip $filename
+done
 ~~~
 {: .output}
 
@@ -160,51 +255,71 @@ what we're doing.
 
 ~~~
 echo "Saving summary..."
-cat */summary.txt > ~/dc_workshop/docs/fastqc_summaries.txt
+cat */summary.txt > ~/course/docs/fastqc_summaries.txt
 ~~~
 {: .output}
 
 > ## Using `echo` statements
 > 
-> We've used `echo` statements to add progress statements to our script. Our script will print these statements
-> as it is running and therefore we will be able to see how far our script has progressed.
->
+> We've used `echo` statements to add progress statements to our script. 
+> When you run a regular bash script, these statements will be printed to the terminal as the script runs, so that you can ee how far our script has progressed.
+> If you include `echo` statements in a job script the messages won't be output to the screen but they will be save in the job log. 
+> This can still be useful for debugging if things go wrong.
 {: .callout}
 
-Your full shell script should now look like this:
+Your full job script should now look something like this:
 
 ~~~
-set -e
-cd ~/dc_workshop/data/untrimmed_fastq/
+#!/bin/bash
+#$ -S /bin/bash
+#$ -N quality_control 
+#$ -wd ~/course/
+#$ -pe smp 4
+#$ -l mem_requested=4G
+#$ -M user@garvan.org.au
+#$ -m bae
 
+# === Modules ===
+module load gi/fastqc/0.11.5
+
+# === Parameters ===
+DATA_DIR=~/course/data/untrimmed_fastq
+RESULTS_DIR=~/course/results/fastqc_untrimmed_reads
+DOC_DIR=~/course/docs
+
+# === Main script body ===
 echo "Running FastQC ..."
-fastqc *.fastq*
+fastqc $DATA_DIR/*.fastq*
 
-mkdir -p ~/dc_workshop/results/fastqc_untrimmed_reads
+mkdir -p $RESULTS_DIR
 
+# === Tidy up ===
 echo "Saving FastQC results..."
-mv *.zip ~/dc_workshop/results/fastqc_untrimmed_reads/
-mv *.html ~/dc_workshop/results/fastqc_untrimmed_reads/
+mv *.zip $RESULTS_DIR
+mv *.html $RESULTS_DIR
 
-cd ~/dc_workshop/results/fastqc_untrimmed_reads/
-
+cd $RESULTS_DIR
 echo "Unzipping..."
 for filename in *.zip
-    do
-    unzip $filename
-    done
+do
+  unzip $filename
+done
 
 echo "Saving summary..."
-cat */summary.txt > ~/dc_workshop/docs/fastqc_summaries.txt
+cat */summary.txt > $DOC_DIR/fastqc_summaries.txt
 ~~~
 {: .output}
 
-Save your file and exit `nano`. We can now run our script:
+Save your file. 
+We can now submit our job:
 
 ~~~
-$ bash read_qc.sh
+$ qsub read_qc.sh
 ~~~
 {: .bash}
+
+When you get a notification email telling you that your job is complete, check the output in the `<job-name>.o<job-number>` log.
+It should look something like this.
 
 ~~~
 Running FastQC ...
@@ -219,6 +334,7 @@ Approx 25% complete for SRR2584866.fastq
 . 
 ~~~
 {: .output}
+
 
 For each of your sample files, FastQC will ask if you want to replace the existing version with a new version. This is 
 because we have already run FastQC on this samples files and generated all of the outputs. We are now doing this again using
