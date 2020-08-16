@@ -322,25 +322,24 @@ $ less --line-numbers ~/course/scripts/trim_one.sh
 The content of this job script file looks like this.
 
 ~~~
-#!/bin/bash
 #$ -S /bin/bash
 #$ -N trim_one 
-#$ -wd ~/course/data/untrimmed_fastq
+#$ -wd /home/johree/course/data/untrimmed_fastq
 #$ -pe smp 4
 #$ -l mem_requested=5G
-#$ -M user@garvan.org.au
+#$ -M j.reeves@garvan.org.au
 #$ -m bae
 
 # === Modules ===
 module load gi/trimmomatic/0.36
 JAR_DIR=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/
-alias trimmomatic="java -Xmx4000M -jar $JAR_DIR/trimmomatic.jar"
+
 
 # === Parameters ===
 SAMPLE=SRR2589044                            # Sample number (as used in fastq files for that sample)
 ADAPTER=ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 # Adapter sequences
 # Log which sample we are processing
-echo "Processing $SAMPLE with $ADAPTER"
+echo "Processing $SAMPLE with $ADAPTER using $NSLOTS cores"
 
 # === Main script body ===
 # Define input and output files
@@ -354,18 +353,18 @@ SURVIVING_2=${SAMPLE}_2.trim.fastq.gz
 ORPHAN_1=${SAMPLE}_1un.trim.fastq.gz
 ORPHAN_2=${SAMPLE}_2un.trim.fastq.gz
 # Log input and output file definitions:
-echo "Input files:" $INPUT_1 "," $INPUT_2
-echo "Surviving trimmed reads:" $SURVIVING_1 "," SURVIVING_2
-echo "Orphaned reads:" $ORPHAN_1 "," ORPHAN_2
+echo "Input files:" $INPUT_1 $INPUT_2
+echo "Surviving trimmed reads:" $SURVIVING_1 $SURVIVING_2
+echo "Orphaned reads:" $ORPHAN_1 $ORPHAN_2
 
 # Run the trimmomatic command with the specified input files and adapter
 # See trimmomatic manual for other options: http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
 
-trimmomatic -threads $NSLOTS \
+java -Xmx4000M -jar $JAR_DIR/trimmomatic.jar PE -threads $NSLOTS \
       $INPUT_1 $INPUT_2 \
       $SURVIVING_1 $SURVIVING_2 \
       $ORPHAN_1 $ORPHAN_2 \
-      SLIDINGWINDOW:4:20 MINLEN:25 $ADAPTER 
+      SLIDINGWINDOW:4:20 MINLEN:25 $ADAPTER
 ~~~
 {: .output}
 
@@ -383,8 +382,9 @@ This is where we load the software needed for the job.
 Usually this section will just consist of one or two "module load ..." commands.
 Some jobs don't actually load any special software, in which case you can skip this section entirely.
 But remember how much trouble we went to in order to get trimmomatic working?
-Here we define an `trimmomatic` as an alias so that later we can run this tool just by writing "trimmomatic". 
-These extra lines are not strictly necessary, but I hope you'll agree that they make the main body of the script clearer (see below).
+Here we define a variable (JAR_DIR) to hold the path to the .jar file for trimmomatic. 
+This extra line is not strictly necessary, but I hope you'll agree that they make the main body of the script clearer (see below).
+This also makes the script easier to maintain, if you want to upgrade to a newer version of trimmomatic in the future.
 
 Next, we have a section called "=== Parameters ===".
 This is the section that you would edit if you wanted to run this job again on a different sample, or in a different directory, or on samples that used different adapter sequences.
@@ -449,7 +449,7 @@ Open the script in nano, Atom or Sublime so that you can make a few changes as y
 | #!/bin/bash | This isn't actually an instruction because it starts with "#!" (the "shebang") rather than "#$". This just allows you to run the job script as a regular bash script if the need arises. |
 | #$ -S /bin/bash | This tells the Sun Grid Engine to use bash for the shell. There are alternatives, but we won't worry about them here. |
 | #$ -N trim_one | This gives the job a name, which can be anything you like and does **not** have to match the file name of the job script. |
-| #$ -wd | This defines the work directory for the job. The SGE will `cd` to this directory before running any of the other commands. Use "-cwd" for "current working directory" when appropriate, but then you'll have to keep a record of what directory you were in. |
+| #$ -wd | This defines the work directory for the job. The SGE will `cd` to this directory before running any of the other commands. Use "-cwd" for "current working directory" when appropriate, but then you'll have to keep a record of what directory you were in. Annoyingly, you can't use bash shortcuts like `~` here or bash environment variables like `$HOME`. |
 | #$ -pe smp 4 | This instruction requests four CPU cores. Use the $NSLOTS variable to tell the commands within your script to actually use all the cores. |
 | #$ -l mem_requested=5G | This requests extra memory (RAM). **Note** that the total amount of memory allocated will be this value multiplied by the number of cores, so do some calculations and don't go overboard. In this case we will get 4 x 5 = 20 GB. |
 | #$ -M user@garvan.org.au | This specifies an email address for notifications. Change it to your address!!! |
