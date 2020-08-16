@@ -68,7 +68,8 @@ To run trimmomatic, we are going to have to find the .jar file.
 
 > ## Exercise
 >
-> Follow your nose from the solution to the previous exercise, and try to locate the .jar file for trimmomatic
+> Navigate (`cd`) to the directory in the solution to the previous exercise. 
+> Follow your nose from there and try to locate the .jar file for trimmomatic. 
 > Clue: think about the module name from the first exercise in this chapter.
 >
 >> ## Solution
@@ -108,6 +109,7 @@ You can request it like this (log out of the compute node first):
 ~~~
 $ qrsh -l mem_requested=16000M
 ~~~
+{: .bash}
 
 Note that 16 GB is about 16000 MB.
 Now you can finally run the basic trimmomatic command to verify that it is installed.
@@ -129,7 +131,7 @@ Usage:
 
 One final comment about Java tools is that it often helps to put bounds on the minimum and maximum amount of memory that can be give to the VM.
 We do this with `-X` options, such as "-Xmx".
-Google it if you want to know details, but at least be aware that this kind of tweaking is often part and parcel of getting the tool to run.
+Google it if you want to know details, but at least be aware that this kind of tweaking is often part and parcel of getting Java tools to run.
 
 
 ## Trimmomatic Options
@@ -288,12 +290,12 @@ $ ls SRR2589044* -l -h
 {: .bash}
 
 ~~~
--rw-rw-r-- 1 dcuser dcuser 124M Jul  6 20:22 SRR2589044_1.fastq.gz
--rw-rw-r-- 1 dcuser dcuser  94M Jul  6 22:33 SRR2589044_1.trim.fastq.gz
--rw-rw-r-- 1 dcuser dcuser  18M Jul  6 22:33 SRR2589044_1un.trim.fastq.gz
--rw-rw-r-- 1 dcuser dcuser 128M Jul  6 20:24 SRR2589044_2.fastq.gz
--rw-rw-r-- 1 dcuser dcuser  91M Jul  6 22:33 SRR2589044_2.trim.fastq.gz
--rw-rw-r-- 1 dcuser dcuser 271K Jul  6 22:33 SRR2589044_2un.trim.fastq.gz
+-rw-rw-r-- 1 user user 124M Jul  6 20:22 SRR2589044_1.fastq.gz
+-rw-rw-r-- 1 user user  94M Jul  6 22:33 SRR2589044_1.trim.fastq.gz
+-rw-rw-r-- 1 user user  18M Jul  6 22:33 SRR2589044_1un.trim.fastq.gz
+-rw-rw-r-- 1 user user 128M Jul  6 20:24 SRR2589044_2.fastq.gz
+-rw-rw-r-- 1 user user  91M Jul  6 22:33 SRR2589044_2.trim.fastq.gz
+-rw-rw-r-- 1 user user 271K Jul  6 22:33 SRR2589044_2un.trim.fastq.gz
 ~~~
 {: .output}
 
@@ -313,7 +315,7 @@ A `job script` is basically the same as a bash script, but with a few extra feat
 Let's look at an example.
 
 ~~~
-$ less --line-numbers ~/jobs/course/trim_one.sh
+$ less --line-numbers ~/course/scripts/trim_one.sh
 ~~~
 {: .bash}
 
@@ -325,15 +327,22 @@ The content of this job script file looks like this.
 #$ -N trim_one 
 #$ -wd ~/course/data/untrimmed_fastq
 #$ -pe smp 4
-#$ -l mem_requested=16G
+#$ -l mem_requested=5G
 #$ -M user@garvan.org.au
-#$ -m ae
+#$ -m bae
 
-#=== Parameters ===
+# === Modules ===
+module load gi/trimmomatic/0.36
+JAR_DIR=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/
+alias trimmomatic="java -Xmx4000M -jar $JAR_DIR/trimmomatic.jar"
+
+# === Parameters ===
 SAMPLE=SRR2589044                            # Sample number (as used in fastq files for that sample)
 ADAPTER=ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 # Adapter sequences
+# Log which sample we are processing
+echo "Processing $SAMPLE with $ADAPTER"
 
-#=== Main script body ===
+# === Main script body ===
 # Define input and output files
 # Paired end input files 1 and 2
 INPUT_1=${SAMPLE}_1.fastq.gz
@@ -344,16 +353,15 @@ SURVIVING_2=${SAMPLE}_2.trim.fastq.gz
 # Output files containing orphan reads (that were trimmed out)
 ORPHAN_1=${SAMPLE}_1un.trim.fastq.gz
 ORPHAN_2=${SAMPLE}_2un.trim.fastq.gz
-
-# Shortcut
-trimmomatic=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar
-
-# Log which sample we are processing
-echo "Processing $SAMPLE with $ADAPTER"
+# Log input and output file definitions:
+echo "Input files:" $INPUT_1 "," $INPUT_2
+echo "Surviving trimmed reads:" $SURVIVING_1 "," SURVIVING_2
+echo "Orphaned reads:" $ORPHAN_1 "," ORPHAN_2
 
 # Run the trimmomatic command with the specified input files and adapter
 # See trimmomatic manual for other options: http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
-java -Xmx4000M -jar $trimmomatic PE -threads $NSLOTS \
+
+trimmomatic -threads $NSLOTS \
       $INPUT_1 $INPUT_2 \
       $SURVIVING_1 $SURVIVING_2 \
       $ORPHAN_1 $ORPHAN_2 \
@@ -370,24 +378,50 @@ At the top of the script, there are half a dozen lines that look like comments.
 These lines starting with "#$" are actually instructions to the Sun Grid Engine about how to run the job.
 We'll look at these more closely in a moment.
 
-Next, we have a section called "### Parameters ###".
-The extra "#" symbols here don't have any special meaning, they just highlight the macro structure.
-This is the section that you would edit if you wanted to run the job again on a different sample, or in a different directory, or on samples that used different adapter sequences.
+Right below the job instructions, we have a section called "=== Modules ===".
+This is where we load the software needed for the job.
+Usually this section will just consist of one or two "module load ..." commands.
+Some jobs don't actually load any special software, in which case you can skip this section entirely.
+But remember how much trouble we went to in order to get trimmomatic working?
+Here we define an `trimmomatic` as an alias so that later we can run this tool just by writing "trimmomatic". 
+These extra lines are not strictly necessary, but I hope you'll agree that they make the main body of the script clearer (see below).
+
+Next, we have a section called "=== Parameters ===".
+This is the section that you would edit if you wanted to run this job again on a different sample, or in a different directory, or on samples that used different adapter sequences.
 (Almost) everything else about the script can stay exactly the same, you just have to edit these two variables: SAMPLE and ADAPTER.
 (You might also want to change the job name and the working directory.)
 Different jobs will need different parameters, and sometimes you can skip this section entirely. 
 But by putting all the parameters up near the top of the script we make it clear to the user (most likely your future self) what kind of information the script needs to do its job.
 This makes it **much** easier to reuse and recycle your job scripts.
 
-The next session is called "### Input and output files ###".
-That's because trimmomatic works with six different files (in paired-end mode anyway) and the names of these files are all related to the sample name (SAMPLE) in a systematic way. 
+You can actually write your bash scripts and job scripts so that they process parameters (command line arguments) just like regular commands.
+We won't go down that particular rabbit hole right now, but it is a neat thing to be able to do.
+There is a concise explanation [here](https://tecadmin.net/tutorial/bash-scripting/bash-command-arguments/) or check out the "Shell" courses on DataCamp.
+
+Note the `echo` statement at the end of the "Parameters" section.
+Normally the `echo` command just echoes text to the terminal.
+But in a job script these messages will be included in the job log.
+Liberally including `echo` statements makes your jobs self-documenting, and also makes debugging **much** easier.
+
+The next session is called "=== Main script body ===".
+This is where the actual work gets done.
+We start by creating variables to hold the names of all the different input and output files.
+Again, this is not strictly necessary -- you could just hard-code the file names into the `trimmomatic` command.
+But trimmomatic works with six different files (in paired-end mode anyway) and the names of these files are all related to the sample name in a systematic way.
+By defining just one variable (SAMPLE) in the "Parameters" section, we can then calculate the names of all the files.
+If you want to process a different sample, you only have to change one part of the script.
+Not only is this less work, it also avoids copy-paste errors and ensures that output files are named consistently.
+These output files will become the inputs for the next step of our workflow, so consistency is crucial -- especially when we try to automate the entire workflow at the end of this workshop.
+
 A simpler job script might only deal with one or two files, say "INPUT" and "OUTPUT".
 In this case, you might include these variables in the "Parameters" section.
 The names and structure is flexible -- I'm just trying to give you an example of good style.
 
-The "### Main script body ###" section is where the actual work gets done.
-First we "echo" a statement.
-These statements will be recorded in the job log, which we'll see in a moment.
+More `echo` messages to keep a record of exactly which files this job will process.
+If something goes wrong you can compare these logs to the actual files in the directory.
+Sometimes it is worth checking to make sure that the expected input files actually exist.
+That way you can log a user-friendly messages if they are missing.
+
 Finally, we run the same java command that we ran interactively a moment ago.
 Hopefully the structure is this command is a lot clearer now that we have gone to the trouble of creating variables for all of the different files.
 
@@ -422,7 +456,7 @@ Open the script in nano, Atom or Sublime so that you can make a few changes as y
 | #$ -m bae | This specifies when notifications will be issued -- at the **b**eginning, when a job **a**borts or when it **e**nds. You decide how much you want to get spammed, but some kind of notification is helpful, especially for long-running jobs. |
 
 If that seems like a lot to remember then don't worry, you don't have to.
-You'll find a template file at `~/jobs/template.sh`. 
+You'll find a template file at `~/templates/job.sh`. 
 You can start with this template file and just make a few minor changes, such as the job name.
 
 ### qrsh versus qsub
