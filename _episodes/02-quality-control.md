@@ -46,7 +46,7 @@ We are studying a population of *Escherichia coli* (designated Ara-3), which wer
 The data are paired-end, so we will download two files for each sample. We will use the [European Nucleotide Archive](https://www.ebi.ac.uk/ena) to get our data. The ENA "provides a comprehensive record of the world's nucleotide sequencing information, covering raw sequencing data, sequence assembly information and functional annotation." The ENA also provides sequencing data in the fastq format, an important format for sequencing reads that we will be learning about today. 
 
 The commands below show how you would download the data from ENA. **You don't have to do this -- the files have already been downloaded for you.**
-But take advantage of some of the time saved by **not** having to download the files, to peruse this code and understand what you would normally have to do.
+But take advantage of some of the time saved by **not** having to download the files to peruse this code and understand what you would normally have to do.
 
 Here we are using the `-p` option for `mkdir`. This option allows `mkdir` to create the new directory, even if one of the parent directories doesn't already exist. It also supresses errors if the directory already exists, without overwriting that directory. 
 
@@ -192,6 +192,7 @@ To see a list of all the software modules installed on the cluster, type the fol
 ~~~
 $ module avail
 ~~~
+{: .bash}
 
 There might be a brief pause before you see any response. 
 In fact, there could be quite a long pause. Be patient!
@@ -204,6 +205,7 @@ aarsta/bcftools/1.6                                gi/trim_galore/0.4.0
 aarsta/bedtools/2.20.1                             gi/trimmomatic/0.30
 aarsta/bismark/0.13.0                              gi/trimmomatic/0.32
 ~~~
+{: .output}
 
 Actually, there are so many lines of output that it will probably scroll past you faster than you can keep up.
 Before we learn how to interpret this output, let's use pipes and redirection to break it into bite sized pieces.
@@ -212,6 +214,7 @@ Type the following command (we'll worry about how it works in a moment):
 ~~~
 module avail 2>&1 | less
 ~~~
+{: .bash}
 
 You should see the modules listed one per line, in a "pageable" format.
 You can press the space bar to page down, or `b` to go back.
@@ -245,6 +248,7 @@ alias mods="module avail 2>&1 | less"
 alias modgrep="module avail 2>&1 | grep"
 ...
 ~~~
+{: .bash}
 
 So from now on, just type "mods" to scroll through the available modules. 
 There is another alias called `modgrep` that you can use when you are searching for a **particular** module.
@@ -375,6 +379,7 @@ $ pwd
 $ ls
 $ exit
 ~~~
+{: .bash}
 
 Notice how your prompt changes when you connect to a compute node.
 There is no need to note down the name of the node, but looking at your prompt can be a helpful reminder of where you are.
@@ -411,6 +416,7 @@ Currently Loaded Modulefiles:
   1) rocks-openmpi
 $ exit
 ~~~
+{: .bash}
 
 ### Loading the fastqc module
 
