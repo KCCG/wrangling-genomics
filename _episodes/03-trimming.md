@@ -503,8 +503,8 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 
 > ## Exercise
 >
-> In trim_one.sh we only processed one sample.
-> Now we want to process three samples.
+> In trim_one.sh we only processed one sample.  
+> Now we want to process three samples.  
 > What are the sample codes for the three samples?
 >
 >> ## Solution
@@ -520,10 +520,10 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 
 > ## Exercise
 >
-> One way to create a `for` loop is to just hard code the sample codes into the loop.
+> One way to create a `for` loop is to just hard code the sample codes into the loop.  
 > Write a `for` loop that loops over the three sample codes and simply `echo`s the codes to the terminal.
 > (No need to write a job script for this.
-> A simple `for` loop typed directly into the terminal will do.
+> A simple `for` loop typed directly into the terminal will do.)
 >
 >> ## Solution
 >> You can simply write the sample codes, separated by spaces, as follows:
@@ -543,8 +543,8 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 > $ sample_list="SRR2584863 SRR2584866 SRR2589044"
 > $ for sample in $sample_list; do echo $sample; done
 > ~~~
-> That's an improvement, but what if we didn't know the sample names or file names in advance?
-> 1) How can we use wildcards to get a list of the sample file names ending with "\_1.fastq.gz"?
+> That's an improvement, but what if we didn't know the sample names or file names in advance?  
+> 1) How can we use wildcards to get a list of the sample file names ending with "\_1.fastq.gz"?  
 > 2) How can we extract the sample names from this list of file names? Hint: loop over the result from 1)
 >
 >> ## Solution
@@ -583,24 +583,25 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 >
 >> ## Solution
 >> ~~~
->> #!/bin/bash
 >> #$ -S /bin/bash
->> #$ -N trim_one 
->> #$ -wd ~/course/data/untrimmed_fastq
+>> #$ -N trim_all
+>> #$ -cwd
 >> #$ -pe smp 4
->> #$ -l mem_requested=16G
+>> #$ -l mem_requested=5G
 >> #$ -M user@garvan.org.au
->> #$ -m ae
+>> #$ -m bae
+>>
+>> === Modules ===
+>> module load gi/trimmomatic/0.36
+>> JAR_DIR=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/
 >>
 >> #=== Parameters ===
->> =SRR2589044                            # Sample number (as used in fastq files for that sample)
+>> $WORKDIR=$HOME/course/data/untrimmed_fastq
 >> ADAPTER=ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 # Adapter sequences
 >> 
 >> #=== Main script body ===
 >> # Get list of files to work with
 >> FILE_LIST=*.fastq.gz
->> # Shortcut
->> trimmomatic=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/trimmomatic.jar
 >> 
 >> # Loop over each sample
 >> for file in FILE_LIST; do
@@ -620,7 +621,7 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 >>    # Run the trimmomatic command with the specified input files and adapter
 >>    # See trimmomatic manual for other options: 
 >>    # http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
->>    java -Xmx4000M -jar $trimmomatic PE -threads $NSLOTS \
+>>    java -Xmx4000M -jar $JAR_DIR/trimmomatic.jar PE -threads $NSLOTS \
 >>          $INPUT_1 $INPUT_2 \
 >>          $SURVIVING_1 $SURVIVING_2 \
 >>          $ORPHAN_1 $ORPHAN_2 \
