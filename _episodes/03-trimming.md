@@ -31,7 +31,7 @@ Don't forget to get a compute node with `qrsh`.
 
 > ## Exercise
 >
-> 1) Figure out which trimmomatic module to use
+> 1) Figure out which trimmomatic module to use.  
 > 2) What happens when you try to load the module and type "trimmomatic" to test the installation?
 >
 >> ## Solution
@@ -128,6 +128,10 @@ Usage:
        -version
 ~~~
 {: .output}
+
+A lot of commands output a "usage" summary like the one above when you type the command without any arguments.
+It is also quite common for commands to display a usage summary when they can't match the arguments that you provided against the arguments that they were expecting.
+If this happens, check the command arguments that you entered carefully against the command usage.
 
 One final comment about Java tools is that it often helps to put bounds on the minimum and maximum amount of memory that can be give to the VM.
 We do this with `-X` options, such as "-Xmx".
