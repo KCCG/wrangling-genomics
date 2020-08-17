@@ -348,6 +348,18 @@ replace SRR2584866_fastqc/Icons/fastqc_icon.png? [y]es, [n]o, [A]ll, [N]one, [r]
 
 # Automating the Rest of our Variant Calling Workflow
 
+=== Parking here for future editing ===
+
+>> After trimming and filtering, our overall quality is much higher, 
+>> we have a distribution of sequence lengths, and more samples pass 
+>> adapter content. However, quality trimming is not perfect, and some
+>> programs are better at removing some sequences than others. Because our
+>> sequences still contain 3' adapters, it could be important to explore
+>> other trimming tools like [cutadapt](http://cutadapt.readthedocs.io/en/stable/) to remove these, depending on your
+>> downstream application. Trimmomatic did pretty well though, and its performance
+>> is good enough for our workflow.
+=== 
+
 We can extend these principles to the entire variant calling workflow. To do this, we will take all of the individual commands that we wrote before, put them into a single file, add variables so that the script knows to iterate through our input files and write to the appropriate output files. This is very similar to what we did with our `read_qc.sh` script, but will be a bit more complex.
 
 Download the script from [here](https://raw.githubusercontent.com/datacarpentry/wrangling-genomics/gh-pages/files/run_variant_calling.sh). Download to `~/dc_workshop/scripts`.
