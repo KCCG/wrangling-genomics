@@ -596,7 +596,7 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 > ## Exercise
 >
 > One way to create a `for` loop is to just hard code the sample codes into the loop.  
-> Write a `for` loop that loops over the three sample codes and simply `echo`s the codes to the terminal.
+> Write a `for` loop that loops over the three sample codes and simply `echo`s the codes to the terminal.  
 > (No need to write a job script for this.
 > A simple `for` loop typed directly into the terminal will do.)
 >
@@ -754,34 +754,7 @@ Actually, this kind of "tidying up" is quite common after running a job that pro
 Although the tidy up commands above are not particularly intensive and so don't really warrant a job script of their own, it is quite common practice to include this kind of tidy up step at the end of the job script.
 If you like, copy and paste the `mkdir` and `mv` commands above at the bottom of your "trim_all.sh" job script (after the "done" statement).
 
-> ## Bonus Exercise
->
-> Now that our samples have gone through quality control, they should perform
-> better on the quality tests run by FastQC. Go ahead and re-run
-> FastQC on your trimmed FASTQ files and visualize the HTML files
-> to see whether your per base sequence quality is higher after
-> trimming.
->
->> ## Solution
->>
->> On the cluster ...
->>
->> ~~~
->> $ qrsh
->> $ module load gi/fastqc/0.11.5
->> $ fastqc ~/course/data/trimmed_fastq/*.fastq*
->> ~~~
->> {: .bash}
->>
->> Then use `sshfs` to view the HTML files on your laptop.
->>
->> After trimming and filtering, our overall quality is much higher, 
->> we have a distribution of sequence lengths, and more samples pass 
->> adapter content. However, quality trimming is not perfect, and some
->> programs are better at removing some sequences than others. Because our
->> sequences still contain 3' adapters, it could be important to explore
->> other trimming tools like [cutadapt](http://cutadapt.readthedocs.io/en/stable/) to remove these, depending on your
->> downstream application. Trimmomatic did pretty well though, and its performance
->> is good enough for our workflow.
-> {: .solution}
-{: .challenge}
+
+Now that our samples have gone through quality control, they should perform better on the quality tests run by FastQC.
+Later we will re-run FastQC on the **trimmed** FASTQ files and visualize the HTML files to see whether your per base sequence quality is higher after trimming.
+
