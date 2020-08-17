@@ -328,10 +328,10 @@ The content of this job script file looks like this.
 ~~~
 #$ -S /bin/bash
 #$ -N trim_one 
-#$ -wd /home/johree/course/data/untrimmed_fastq
+#$ -wd /home/user/course/data/untrimmed_fastq
 #$ -pe smp 4
 #$ -l mem_requested=5G
-#$ -M j.reeves@garvan.org.au
+#$ -M user@garvan.org.au
 #$ -m bae
 
 # === Modules ===
@@ -388,7 +388,7 @@ Some jobs don't actually load any special software, in which case you can skip t
 But remember how much trouble we went to in order to get trimmomatic working?
 Here we define a variable (JAR_DIR) to hold the path to the .jar file for trimmomatic. 
 This extra line is not strictly necessary, but I hope you'll agree that they make the main body of the script clearer (see below).
-This also makes the script easier to maintain, if you want to upgrade to a newer version of trimmomatic in the future.
+This also makes the script easier to maintain if you want to upgrade to a newer version of trimmomatic in the future.
 
 Next, we have a section called "=== Parameters ===".
 This is the section that you would edit if you wanted to run this job again on a different sample, or in a different directory, or on samples that used different adapter sequences.
@@ -450,7 +450,6 @@ Open the script in nano, Atom or Sublime so that you can make a few changes as y
 
 | instruction | meaning | 
 | ----------- | ------- |
-| #!/bin/bash | This isn't actually an instruction because it starts with "#!" (the "shebang") rather than "#$". This just allows you to run the job script as a regular bash script if the need arises. |
 | #$ -S /bin/bash | This tells the Sun Grid Engine to use bash for the shell. There are alternatives, but we won't worry about them here. |
 | #$ -N trim_one | This gives the job a name, which can be anything you like and does **not** have to match the file name of the job script. |
 | #$ -wd | This defines the work directory for the job. The SGE will `cd` to this directory before running any of the other commands. Use "-cwd" for "current working directory" when appropriate, but then you'll have to keep a record of what directory you were in. Annoyingly, you can't use bash shortcuts like `~` here or bash environment variables like `$HOME`. |
@@ -477,7 +476,79 @@ Quit out of the interactive node, and then submit the job from the login node.
 
 ### Job logs
 
-TODO
+When you type a command directly into the command line the output usually appears in the terminal, unless it is redirected to a file.
+Even when you run a `bash script`, the output from each step usually appears on the screen.
+However with job scripts the output **never** appears on the screen -- it is always redirected to log files.
+
+By the time you have read up to here, the job you submitted a moment ago should have finished executing.
+If you remembered to change the email address, you will receive summary information via email.
+But any messages produced by the job will be stored in one of four `job logs`.
+
+> ## Exercise
+>
+> Navigate to the working directory for the job script.
+>
+>> ## Solution
+>>
+>> Look at the `#$ -wd` job instruction in the job script.
+>> ~~~
+>> cd /home/user/course/untrimmed_fastq
+>> ls
+>> ~~~
+> {: .solution}
+{: .challenge}
+
+In the job working directory, you should see the following four files (along with the various .fastq files).
+~~~
+$ ls ~/course/untrimmed_fastq
+trim_one.o1234567
+trim_one.e1234567
+trim_one.po1234567
+trim_one.po1234567
+~~~
+{: .bash}
+
+Here "trim_one" is of course the name of the job that we just submitted.
+And the seven-digit number at the end is the job number.
+The content of each of these files is summarized below:
+
+| File | Content |
+| ---- | ------- |
+| *.o* | The `Standard output` stream from the job script, usually abbreviated as `STDOUT`. |
+| *.e* | The `Standard error` stream from the job script, usually abbreviated as `STDERR`. |
+| *.po* | Output associated with parallel processing. |
+| *.pe* | Error messages associated with parallel processing. |
+
+Note that "error" here doesn't necessarily mean that something has gone wrong.
+Some programmers choose to send progress update messages to `STDERR` as well as actual error messages.
+Note also that I've **never** seen anything interesting in either the `po` log or the `pe` log.
+But I guess there is a first time for everything, so I make a point of checking anyway.
+
+If you look inside the `o` file you should see the `echo` statements from the job script.
+These messages can be very handy for debugging.
+Always, always make sure that you check the `e` file as well.
+Sometimes everything seems to have worked just fine, but then a message in the `e` file will alert you that all is not how it seems.
+
+Occassioanlly, jobs will "hang".
+You get a message that they started, but they never seem to finish.
+You can use the following command to check on the status of your job.
+
+~~~
+$ qstat -u $USER
+~~~
+{: .bash}
+
+In fact, this is such a handy little snippet of code that it is almost worth making an alias for it.
+If you are cruising for time, add the following line to your ~/.bash_aliases file.
+
+~~~
+alias myjobs=qstat -u $USER
+~~~
+{: .bash}
+
+There are other handy commands for checking up on jobs or deleting frozen jobs, etc.
+Consult the [HPC guide](https://intranet.gimr.garvan.org.au/display/HPC/Wolfpack+Cluster+-+Getting+started) for details.
+But let's get back to the bioinformatics.
 
 ## Trimming all the files
 
