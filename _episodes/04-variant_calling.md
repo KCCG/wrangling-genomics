@@ -37,6 +37,7 @@ First we download the reference genome for *E. coli* REL606. Although we could c
 In the interests of time, the file has already been downloaded and placed in one of your directories. 
 The code below shows how this **would** have been acheived. 
 Study this code and try to figure out where the reference genome data would be stored.
+Also, quickly check the `man` page for the `curl` command to find out what the "-L" and "-o" options do (use <kbd>/</kbd> to search).
 
 ~~~
 $ cd ~/course
@@ -107,6 +108,15 @@ $ tar xvf sub.tar.gz
 $ mv sub/ ~/course/data/trimmed_fastq_small
 ~~~
 {: .bash}
+
+> ## Tip
+> In the example above, the `tar` command uses what is called "option stacking".
+> At least, that's what I call it anyway...
+> The options here are "-x", "-v" and "-f". 
+> The `tar` command allows you to type "tar xvf" as a shorthand for "tar -x -v -f".
+> Check out the `man` page for `tar` to see what these options do.
+> As well as using <kbd>/</kdb> to search for "-x" etc, I also recommend using <kbd>g</kbd> in between searches to go back to the top of the page.
+{: .callout}
 
 You will also need to create directories for the results that will be generated as part of this workflow. We can do this in a single
 line of code, because `mkdir` can accept multiple new directory
