@@ -453,7 +453,7 @@ Open the script in nano, Atom or Sublime so that you can make a few changes as y
 | #$ -S /bin/bash | This tells the Sun Grid Engine to use bash for the shell. There are alternatives, but we won't worry about them here. |
 | #$ -N trim_one | This gives the job a name, which can be anything you like and does **not** have to match the file name of the job script. |
 | #$ -wd | This defines the work directory for the job. The SGE will `cd` to this directory before running any of the other commands. Use "-cwd" for "current working directory" when appropriate, but then you'll have to keep a record of what directory you were in. Annoyingly, you can't use bash shortcuts like `~` here or bash environment variables like `$HOME`. |
-| #$ -pe smp 4 | This instruction requests four CPU cores. Use the $NSLOTS variable to tell the commands within your script to actually use all the cores. |
+| #$ -pe smp 4 | This instruction requests four CPU cores. Use the $NSLOTS variable to tell the commands within your script to actually use all the cores. $NSLOTS is one of several variables created by SGE when you submit a job. |
 | #$ -l mem_requested=5G | This requests extra memory (RAM). **Note** that the total amount of memory allocated will be this value multiplied by the number of cores, so do some calculations and don't go overboard. In this case we will get 4 x 5 = 20 GB. |
 | #$ -M user@garvan.org.au | This specifies an email address for notifications. Change it to your address!!! |
 | #$ -m bae | This specifies when notifications will be issued -- at the **b**eginning, when a job **a**borts or when it **e**nds. You decide how much you want to get spammed, but some kind of notification is helpful, especially for long-running jobs. |
@@ -657,6 +657,10 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 > But don't feel too bad about having another peek if necessary.
 >
 >> ## Solution
+>> Note that here I am defining the work directory as a variable (WORKDIR) rather than as a job instruction (#$ -wd).
+>> That's because I want to define the work directory relative to my home directory, but I can't do that with the job instruction without hard coding the path.
+>> I also wanted to show you an alternative way of handling the work directory issue.
+>> Be aware that job logs will still be output to the directory defined by the job instruction ("#$ -wd" or "#$ -cwd").
 >> ~~~
 >> #$ -S /bin/bash
 >> #$ -N trim_all
@@ -666,7 +670,7 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 >> #$ -M user@garvan.org.au
 >> #$ -m bae
 >>
->> === Modules ===
+>> # === Modules ===
 >> module load gi/trimmomatic/0.36
 >> JAR_DIR=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/
 >>
