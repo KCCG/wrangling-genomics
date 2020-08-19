@@ -677,6 +677,7 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 >> #=== Parameters ===
 >> WORKDIR=$HOME/course/data/untrimmed_fastq/
 >> ADAPTER=ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 # Adapter sequences
+>> echo "Processing $WORKDIR with $ADAPTER using $NSLOTS cores"
 >> 
 >> #=== Main script body ===
 >> # Get list of files to work with
@@ -697,6 +698,9 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 >>    ORPHAN_2=${SAMPLE}_2un.trim.fastq.gz
 >>    # Log which sample we are processing
 >>    echo "Processing $SAMPLE with $ADAPTER"
+>>    echo "Input files:" $INPUT_1 $INPUT_2
+>>    echo "Surviving trimmed reads:" $SURVIVING_1 $SURVIVING_2
+>>    echo "Orphaned reads:" $ORPHAN_1 $ORPHAN_2
 >>    # Run the trimmomatic command with the specified input files and adapter
 >>    # See trimmomatic manual for other options: 
 >>    # http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf
