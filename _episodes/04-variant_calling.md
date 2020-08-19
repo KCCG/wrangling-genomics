@@ -115,7 +115,7 @@ $ mv sub/ ~/course/data/trimmed_fastq_small
 > The options here are "-x", "-v" and "-f". 
 > The `tar` command allows you to type "tar xvf" as a shorthand for "tar -x -v -f".
 > Check out the `man` page for `tar` to see what these options do.
-> As well as using <kbd>/</kdb> to search for "-x" etc, I also recommend using <kbd>g</kbd> in between searches to go back to the top of the page.
+> As well as using <kbd>/</kbd> to search for "-x" etc, I also recommend using <kbd>g</kbd> in between searches to go back to the top of the page.
 {: .callout}
 
 You will also need to create directories for the results that will be generated as part of this workflow. We can do this in a single
