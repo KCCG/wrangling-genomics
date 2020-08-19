@@ -675,12 +675,12 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 >> JAR_DIR=/share/ClusterShare/software/contrib/gi/trimmomatic/0.36/
 >>
 >> #=== Parameters ===
->> $WORKDIR=$HOME/course/data/untrimmed_fastq
+>> WORKDIR=$HOME/course/data/untrimmed_fastq/
 >> ADAPTER=ILLUMINACLIP:NexteraPE-PE.fa:2:40:15 # Adapter sequences
 >> 
 >> #=== Main script body ===
 >> # Get list of files to work with
->> FILE_LIST=*.fastq.gz
+>> FILE_LIST=$WORKDIR/*.fastq.gz
 >> 
 >> # Loop over each sample
 >> for file in $FILE_LIST; do
