@@ -683,7 +683,7 @@ You'll still learn something from seeing how it fits together, but I'd encourage
 >> FILE_LIST=*.fastq.gz
 >> 
 >> # Loop over each sample
->> for file in FILE_LIST; do
+>> for file in $FILE_LIST; do
 >>    SAMPLE=$(basename $file _1.fastq.gz)
 >>    # Define input and output files
 >>    # Paired end input files 1 and 2
