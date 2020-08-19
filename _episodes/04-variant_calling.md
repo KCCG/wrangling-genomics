@@ -809,14 +809,26 @@ lesson.
 
 > ## Installing Software
 > 
-> It's worth noting that all of the software we are using for
-> this workshop has been pre-installed on our remote computer. 
-> This saves us a lot of time - installing software can be a 
-> time-consuming and frustrating task - however, this does mean that
-> you won't be able to walk out the door and start doing these
-> analyses on your own computer. You'll need to install 
-> the software first. Look at the [setup instructions](http://www.datacarpentry.org/wrangling-genomics/setup.html) for more information 
-> on installing these software packages.
+> It's worth noting that all of the software we are using for this workshop has been pre-installed on the cluster. 
+> This saves us a lot of time - installing software can be a time-consuming and frustrating task.
+> However, this does mean that you won't be able to start doing these analyses on your own computer. 
+> You'll need to install the software first. 
+> Look at the [setup instructions](http://www.datacarpentry.org/wrangling-genomics/setup.html) for more information on installing these software packages.
+> Installing software on your laptop is actually _relatively_ straightforward because you usually have adminstrator privileges for your laptop.
+> Installing on the cluster is harder, because you don't have administrator privileges and you often have to compile software from source.
+> Most biofinformatics software will include an option for compiling from source, but it helps to be aware that this is a thing.
+> Another challenge is that (as of August 2020) the operating system on the cluster is quite old, and so often the software that you want install will depend on a core operating system library that either doesn't exist on the cluster or which is out of date.
+> There are ways around this but the cluster is about to get an overhaul, which should minimise this particular headache.
+> For now, my key advise is to seek help if you experience difficulty software on the cluster.
+> 
+> The other option for installing software on the cluster is `conda`.
+> This tool takes care of all the dependencies for you, and installs software in isolated `environments` to avoid conflicting requirements.
+> There is a `miniconda` module available on the cluster so please don't go cluttering up your home directory by installing `conda` there.
+> You can find a [brief guide](https://intranet.gimr.garvan.org.au/display/BINF/Using+Community+Conda+on+the+Cluster) to setting up `conda` in the [Community User Guides](https://intranet.gimr.garvan.org.au/display/BINF/Community+User+Guides) section of the Bioinformatics corner of Confluence.
+> Note that you will need to run `conda init` the first time that you use `conda`.
+> Then you will need to log out and back in again for the configuration changes to take effect.
+> After that there is no need to load the `miniconda` module each time - you will be able to use and install `conda` software as needed.
+> Just make a note of which environment you are in and PLEASE do not install anything in the `(base)` environment.
 {: .callout}
 
 > ## BWA Alignment options
