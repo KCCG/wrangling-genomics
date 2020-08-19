@@ -492,7 +492,7 @@ But any messages produced by the job will be stored in one of four `job logs`.
 >>
 >> Look at the `#$ -wd` job instruction in the job script.
 >> ~~~
->> cd /home/user/course/untrimmed_fastq
+>> cd /home/user/course/data/untrimmed_fastq
 >> ls
 >> ~~~
 > {: .solution}
