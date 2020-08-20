@@ -491,7 +491,7 @@ variant calling. In this workshop we will be using `bcftools`.
 >> 
 >> This time there are **three** modules for bcftools 1.9 on the cluster.
 >> Can you spot them all?
->> We want evaben7/bcftools/1.9/gcc-8.2.0
+>> We want briglo/bcftools/1.9
 > {: .solution}
 {: .challenge}
 
@@ -508,7 +508,7 @@ The flag `-O b` tells bcftools to generate a bcf format output file, `-o` specif
 
 ~~~
 $ qrsh
-$ module load evaben7/bcftools/1.9/gcc-8.2.0
+$ module load briglo/bcftools/1.9
 $ bcftools mpileup -O b -o results/bcf/SRR2584866_raw.bcf \
 -f data/ref_genome/ecoli_rel606.fasta results/bam/SRR2584866.aligned.sorted.bam 
 $ exit
@@ -532,7 +532,7 @@ We have to specify ploidy with the flag `--ploidy`, which is one for the haploid
 
 ~~~
 $ qrsh
-$ module load evaben7/bcftools/1.9/gcc-8.2.0
+$ module load briglo/bcftools/1.9
 $ bcftools call --ploidy 1 -m -v -o results/bcf/SRR2584866_variants.vcf results/bcf/SRR2584866_raw.bcf 
 $ exit
 ~~~
@@ -546,7 +546,7 @@ Filter the SNPs for the final output in VCF format, using `vcfutils.pl`:
 
 ~~~
 $ qrsh
-$ module load evaben7/bcftools/1.9/gcc-8.2.0
+$ module load briglo/bcftools/1.9
 $ vcfutils.pl varFilter results/bcf/SRR2584866_variants.vcf  > results/vcf/SRR2584866_final_variants.vcf
 $ exit
 ~~~
