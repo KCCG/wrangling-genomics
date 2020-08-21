@@ -265,6 +265,23 @@ cat */summary.txt > ~/course/docs/fastqc_summaries.txt
 > When you run a regular bash script, these statements will be printed to the terminal as the script runs, so that you can ee how far our script has progressed.
 > If you include `echo` statements in a job script the messages won't be output to the screen but they will be save in the job log. 
 > This can still be useful for debugging if things go wrong.
+> The basic structure is as follows:
+> 1. Write a comment explaining what the variable means eg: 
+> ~~~
+> # This variable holds the name of the input file
+> ~~~
+> 2. Define the variable, eg: 
+> ~~~
+> INPUT=/mydir/input.txt
+> ~~~
+> 3. Echo the value of the variable for debugging purposes, eg: 
+> ~~~
+> echo "Input file:" $INPUT
+> ~~~
+> 4. Use the variable, eg:
+> ~~~
+> mv $INPUT data/raw/
+> ~~~
 {: .callout}
 
 Your full job script should now look something like this:
