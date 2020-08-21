@@ -544,7 +544,7 @@ After running this command interactively, add it to your job script.
 
 ### Step 3: Filter and report the SNP variants in variant calling format (VCF)
 
-Filter the SNPs for the final output in VCF format, using `vcfutils.pl`:
+Filter the SNPs for the final output in VCF format, using the `filter` subcommand of `bcfutils`:
 
 ~~~
 $ qrsh
