@@ -461,10 +461,11 @@ variant frequency and some measure of confidence. Similar to other steps in this
 variant calling. In this workshop we will be using `bcftools`.
 
 > ## Exercise 
-> Which bcftools modules are available on the cluster?
+> 1. Which bcftools modules are available on the cluster?
+> 2. Where is the online manual for bcftools?
 > 
 >> ## Solution
->> 
+>> 1.
 >> ~~~
 >> modgrep bcftools
 >> aarsta/bcftools/1.2
@@ -478,7 +479,8 @@ variant calling. In this workshop we will be using `bcftools`.
 >> julyin/bcftools/1.3.1
 >> pethum/bcftools/gcc-4.4.6/1.3
 >> ~~~
->>
+>> 2.
+>> http://samtools.github.io/bcftools/bcftools.html
 > {: .solution}
 {: .challenge}
 
@@ -547,7 +549,7 @@ Filter the SNPs for the final output in VCF format, using `vcfutils.pl`:
 ~~~
 $ qrsh
 $ module load briglo/bcftools/1.9
-$ vcfutils.pl varFilter results/bcf/SRR2584866_variants.vcf  > results/vcf/SRR2584866_final_variants.vcf
+$ bcftools filter results/bcf/SRR2584866_variants.vcf  > results/vcf/SRR2584866_final_variants.vcf
 $ exit
 ~~~
 {: .bash}
@@ -562,9 +564,13 @@ This next step is exploratory.
 You don't have to add it to your job script.
 
 ~~~
-$ less -S results/vcf/SRR2584866_final_variants.vcf
+$ less -S -x10 results/vcf/SRR2584866_final_variants.vcf
 ~~~
 {: .bash}
+
+Here the "-S" option stops `less` from wrapping lines. 
+You might have to use the arrow keys to be able to actually view the last part of each line, but at least each line will start on a new row.
+The "-x10" option pads out each field so that the columns line up neatly on top of each other.
 
 You will see the header (which describes the format), the time and date the file was
 created, the version of bcftools that was used, the command line parameters used, and 
@@ -690,7 +696,7 @@ In order for us to visualize the alignment files, we will need to index the BAM 
 
 ~~~
 $ qrsh
-$ briglo/samtools/1.9
+$ module load briglo/samtools/1.9
 $ samtools index results/bam/SRR2584866.aligned.sorted.bam
 $ # We'll exit in a moment.
 ~~~
