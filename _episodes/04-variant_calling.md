@@ -149,28 +149,28 @@ Before we can use bwa we'll need to find and load the appropriate module.
 >> $ modgrep bwa
 >> ~~~
 >> {: .bash}
->> aarsta/bwa/0.7.9a
->> aarsta/bwa-meth/0.09
->> aarsta/bwa-meth/0.10
->> aarsta/bwa-meth/git
->> aarsta/bwa-meth/git_aaron
->> evaben/bwa/gcc-7.3.0/0.7.15
->> gi/bwa/0.5.8c
->> gi/bwa/0.7.10
->> gi/bwa/0.7.12
->> gi/bwa/0.7.4
->> gi/bwa/0.7.5a
->> gi/bwa/0.7.6a
->> gi/bwa/0.7.8
->> gi/bwa/0.7.9a
->> kevyin/bwa/0.6.2
->> marcow/bwa/0.7.3a/gcc-4.4.6
->> marcow/bwa/gcc-4.4.6/0.7.3a
->> marsmi/bwa/0.7.17
->> pethum/bwa/gcc-4.4.6/0.7.12
->> pethum/bwakit/prebuilt/0.7.12
->> phuluu/bwa-meth/0.10
->> timpet/bwa-meth/git_aaron_mem_patch
+>> aarsta/bwa/0.7.9a  
+>> aarsta/bwa-meth/0.09  
+>> aarsta/bwa-meth/0.10  
+>> aarsta/bwa-meth/git   
+>> aarsta/bwa-meth/git_aaron  
+>> evaben/bwa/gcc-7.3.0/0.7.15  
+>> gi/bwa/0.5.8c  
+>> gi/bwa/0.7.10  
+>> gi/bwa/0.7.12  
+>> gi/bwa/0.7.4  
+>> gi/bwa/0.7.5a  
+>> gi/bwa/0.7.6a  
+>> gi/bwa/0.7.8  
+>> gi/bwa/0.7.9a  
+>> kevyin/bwa/0.6.2  
+>> marcow/bwa/0.7.3a/gcc-4.4.6  
+>> marcow/bwa/gcc-4.4.6/0.7.3a  
+>> marsmi/bwa/0.7.17  
+>> pethum/bwa/gcc-4.4.6/0.7.12  
+>> pethum/bwakit/prebuilt/0.7.12  
+>> phuluu/bwa-meth/0.10  
+>> timpet/bwa-meth/git_aaron_mem_patch  
 >> ~~~
 >> 
 > {: .solution}
