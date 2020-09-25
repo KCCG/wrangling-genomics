@@ -123,6 +123,7 @@ line of code, because `mkdir` can accept multiple new directory
 names as input.
 
 ~~~
+$ cd ~/course/data
 $ mkdir -p results/sam results/bam results/bcf results/vcf
 ~~~
 {: .bash}
