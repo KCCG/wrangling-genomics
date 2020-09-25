@@ -379,7 +379,7 @@ replace SRR2584866_fastqc/Icons/fastqc_icon.png? [y]es, [n]o, [A]ll, [N]one, [r]
 
 We can extend these principles to the entire variant calling workflow. To do this, we will take all of the individual commands that we wrote before, put them into a single file, add variables so that the script knows to iterate through our input files and write to the appropriate output files. This is very similar to what we did with our `read_qc.sh` script, but will be a bit more complex.
 
-Download the script from [here](https://raw.githubusercontent.com/datacarpentry/wrangling-genomics/gh-pages/files/run_variant_calling.sh). Download to `~/dc_workshop/scripts`.
+Download the script from [here](https://raw.githubusercontent.com/datacarpentry/wrangling-genomics/gh-pages/files/run_variant_calling.sh). Download to `~/course/scripts`.
 
 ~~~
 curl -O https://raw.githubusercontent.com/datacarpentry/wrangling-genomics/gh-pages/files/run_variant_calling.sh
@@ -398,7 +398,7 @@ Our variant calling workflow has the following steps:
 Let's go through this script together:
 
 ~~~
-$ cd ~/dc_workshop/scripts
+$ cd ~/course/scripts
 $ less run_variant_calling.sh
 ~~~
 {: .bash}
@@ -409,13 +409,13 @@ The script should look like this:
 set -e
 cd ~/dc_workshop/results
 
-genome=~/dc_workshop/data/ref_genome/ecoli_rel606.fasta
+genome=~/course/data/ref_genome/ecoli_rel606.fasta
 
 bwa index $genome
 
 mkdir -p sam bam bcf vcf
 
-for fq1 in ~/dc_workshop/data/trimmed_fastq_small/*_1.trim.sub.fastq
+for fq1 in ~/course/data/trimmed_fastq_small/*_1.trim.sub.fastq
     do
     echo "working with file $fq1"
 
@@ -449,7 +449,7 @@ First, notice that we change our working directory so that we can create new res
 in the right location. 
 
 ~~~
-cd ~/dc_workshop/results
+cd ~/course/results
 ~~~
 {: .output}
 
@@ -457,7 +457,7 @@ Next we tell our script where to find the reference genome by assigning the `gen
 the path to our reference genome: 
 
 ~~~
-genome=~/dc_workshop/data/ref_genome/ecoli_rel606.fasta
+genome=~/course/data/ref_genome/ecoli_rel606.fasta
 ~~~
 {: .output}
 
@@ -503,16 +503,16 @@ We can use the `base` variable to access both the `base_1.fastq` and `base_2.fas
 
 ~~~
     #input fastq files
-    fq1=~/dc_workshop/data/trimmed_fastq_small/${base}_1.trim.sub.fastq
-    fq2=~/dc_workshop/data/trimmed_fastq_small/${base}_2.trim.sub.fastq
+    fq1=~/course/data/trimmed_fastq_small/${base}_1.trim.sub.fastq
+    fq2=~/course/data/trimmed_fastq_small/${base}_2.trim.sub.fastq
     
     # output files
     sam=~/dc_workshop/results/sam/${base}.aligned.sam
     bam=~/dc_workshop/results/bam/${base}.aligned.bam
-    sorted_bam=~/dc_workshop/results/bam/${base}.aligned.sorted.bam
-    raw_bcf=~/dc_workshop/results/bcf/${base}_raw.bcf
-    variants=~/dc_workshop/results/bcf/${base}_variants.vcf
-    final_variants=~/dc_workshop/results/vcf/${base}_final_variants.vcf     
+    sorted_bam=~/course/results/bam/${base}.aligned.sorted.bam
+    raw_bcf=~/course/results/bcf/${base}_raw.bcf
+    variants=~/course/results/bcf/${base}_variants.vcf
+    final_variants=~/course/results/vcf/${base}_final_variants.vcf     
 ~~~
 {: .bash}
 
@@ -598,7 +598,7 @@ $ bash run_variant_calling.sh
 >> ## Solution
 >> 
 >> ~~~
->> $ for infile in ~/dc_workshop/results/vcf/*_final_variants.vcf
+>> $ for infile in ~/course/results/vcf/*_final_variants.vcf
 >> > do
 >> >     echo ${infile}
 >> >     grep -v "#" ${infile} | wc -l
