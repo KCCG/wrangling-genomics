@@ -17,7 +17,7 @@ But it's still worthwhile reviewing some of the fundamentals.
 
 # What is a shell script?
 
-You wrote a simple shell script in a [previous lesson](http://www.datacarpentry.org/shell-genomics/05-writing-scripts/) that we used to extract bad reads from our
+You wrote a simple shell script in a [previous lesson](https://kccg.github.io/shell-genomics/05-writing-scripts/index.html) that we used to extract bad reads from our
 FASTQ files and put them into a new file. 
 
 Here's the script you wrote:
