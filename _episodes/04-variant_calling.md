@@ -193,7 +193,7 @@ But it is a good idea to consult reference manuals even when following a recipe.
 That way you can understand what is happening, or notice other options that might be useful for what you are trying to do.
 There might also be warnings, cautions or other "gotchas" that you need to avoid.
 
-Have a quick look at the reference manual for `bwa`: http://bio-bwa.sourceforge.net/bwa.shtml
+Have a quick look at the reference manual for `bwa`: (http://bio-bwa.sourceforge.net/bwa.shtml)
 In particular, scan the section for "bwa index" in the [Commands and Options](http://bio-bwa.sourceforge.net/bwa.shtml#3) section.
 What you will (hopefully) notice is that `bwa` has mutiple `subcommands` such as `index`, `mem` and `aln`.
 Each one of these has its own set of options.
