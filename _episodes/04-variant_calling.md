@@ -274,8 +274,8 @@ We're going to start by aligning the reads from just one of the samples in our d
 Later, we'll be iterating this whole process on all of our sample files.
 
 This is the commmand that we want to run.
-Remeber that the "\" allows us to break a long command over multiple lines.
-Be careful not to put any spaces after the "\" or bash will get confused.
+Remeber that the "\\" allows us to break a long command over multiple lines.
+Be careful not to put any spaces after the "\\" or bash will get confused.
 
 ~~~
 $ qrsh
