@@ -55,35 +55,10 @@ You'll notice that a lot of it is organised into directories based on user names
 That way you know who to ask if you have questions about a particular dataset.
 If you do need to download a lot of data, especially reference data, and you think it might be useful to others, make a directory and store the data here.
 
-I've placed the E.Coli reference genome data in my directory in biodata/contrib.
-You'll need to refer to this data as part of your analysis.
-But you won't need to actually modify this data.
-So instead of copying the data to your project, let's create a `link`.
-A `link` is like an "alias" on a Mac or a "shortcut" on Windows.
-(If that doesn't mean anything to you then don't worry, it will make more sense after you see it.)
-
-~~~
-$ ln --symbolic /share/ClusterShare/biodata/contrib/johree/ecoli_ref_genome ~/course/data/ref_genome
-$ cd ~/course/data
-$ ls --classify
-$ ls -l
-$ cd ~/course/data/ref_genome
-~~~
-{: .bash}
-
-In the first directory listing ("ls --classify") you should see an "@" symbol after "ref_genome".
-This indicates that "ref_genome" is a link rather than a "real" directory.
-In the second long form directory listing ("ls -l") you should see an arrow pointing from "ref_genome" to location where the real directory actually lives.
-
-Note that we have used the "--symbolic" option with the `ln` command ("-s" for short).
-This creates a "soft" link. 
-If you delete the link then the original file or directory will remain untouched, whereas with a "hard" link (without the "--symbolic" option) both the source and the destination will be deleted.
-Hopefully it is fairly obvious why that is generally not a good idea.
 
 > ## Exercise 
 > 
-> We saved this file as `data/ref_genome/ecoli_rel606.fasta.gz` and then decompressed it. 
-> What is the real name of the genome? 
+> What is the real name of this genome? 
 > 
 >> ## Solution
 >> 
