@@ -198,11 +198,13 @@ Some things to think about as you work on your script.
 > 5. Work out which parts to parameterize, so that your script can be easily adopted to other files, other samples, or other projects.
 
 OK, back to working on the data...
+(Note that every time you request an interactive compute node it bumps you back to your home directory, so you will need to switch back to the ~/course/data directory where we are working.)
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load marsmi/bwa/0.7.17 
-$ bwa index data/ref_genome/ecoli_rel606.fasta
+$ bwa index ref_genome/ecoli_rel606.fasta
 $ exit
 ~~~
 {: .bash}
@@ -254,10 +256,11 @@ Be careful not to put any spaces after the "\\" or bash will get confused.
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load marsmi/bwa/0.7.17 
-$ bwa mem data/ref_genome/ecoli_rel606.fasta \  
-          data/trimmed_fastq_small/SRR2584866_1.trim.sub.fastq \  
-          data/trimmed_fastq_small/SRR2584866_2.trim.sub.fastq \ 
+$ bwa mem ref_genome/ecoli_rel606.fasta \  
+          trimmed_fastq_small/SRR2584866_1.trim.sub.fastq \  
+          trimmed_fastq_small/SRR2584866_2.trim.sub.fastq \ 
           > results/sam/SRR2584866.aligned.sam
 $ exit
 ~~~
@@ -355,6 +358,7 @@ Run the command interactively.
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load briglo/samtools/1.9
 $ samtools view -S -b results/sam/SRR2584866.aligned.sam > results/bam/SRR2584866.aligned.bam
 $ exit
@@ -382,6 +386,7 @@ Next we sort the BAM file using the `sort` subcommand from `samtools`.
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load briglo/samtools/1.9
 $ samtools sort -o results/bam/SRR2584866.aligned.sorted.bam results/bam/SRR2584866.aligned.bam 
 $ exit
@@ -402,6 +407,7 @@ You can use samtools to learn more about this bam file as well.
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load briglo/samtools/1.9
 $ samtools flagstat results/bam/SRR2584866.aligned.sorted.bam
 $ exit
@@ -488,9 +494,10 @@ The flag `-O b` tells bcftools to generate a bcf format output file, `-o` specif
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load briglo/bcftools/1.9
 $ bcftools mpileup -O b -o results/bcf/SRR2584866_raw.bcf \
--f data/ref_genome/ecoli_rel606.fasta results/bam/SRR2584866.aligned.sorted.bam 
+-f ref_genome/ecoli_rel606.fasta results/bam/SRR2584866.aligned.sorted.bam 
 $ exit
 ~~~
 {: .bash}
@@ -512,6 +519,7 @@ We have to specify ploidy with the flag `--ploidy`, which is one for the haploid
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load briglo/bcftools/1.9
 $ bcftools call --ploidy 1 -m -v -o results/bcf/SRR2584866_variants.vcf results/bcf/SRR2584866_raw.bcf 
 $ exit
@@ -526,6 +534,7 @@ Filter the SNPs for the final output in VCF format, using the `filter` subcomman
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load briglo/bcftools/1.9
 $ bcftools filter results/bcf/SRR2584866_variants.vcf  > results/vcf/SRR2584866_final_variants.vcf
 $ exit
@@ -674,6 +683,7 @@ In order for us to visualize the alignment files, we will need to index the BAM 
 
 ~~~
 $ qrsh
+$ cd ~/course/data
 $ module load briglo/samtools/1.9
 $ samtools index results/bam/SRR2584866.aligned.sorted.bam
 $ # We'll exit in a moment.
